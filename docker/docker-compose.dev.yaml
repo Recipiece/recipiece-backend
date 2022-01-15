@@ -1,0 +1,45 @@
+# this docker compose exists only for dev purposes
+version: '3'
+services:
+  memcachedb:
+    image: redis:latest
+    ports:
+      - 6379:6379
+  mongodb:
+    image: mongo:latest
+    container_name: 'recipiece-db'
+    volumes:
+      - ./mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
+      - ./mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
+      - ./mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: recipiece
+      MONGO_INITDB_ROOT_PASSWORD: test1234
+      MONGO_INITDB_DATABASE: recipiece
+    ports:
+      - 27017:27017
+  # rcp-database:
+  #   build:
+  #     context: ../services
+  #     dockerfile: ./services/dev/Dockerfile.database
+  #   volumes:
+  #     - ../services/database/dist/:/rcp-database/database/dist/:ro
+  rcp-auth:
+    build:
+      context: ../services
+      dockerfile: ../docker/services/dev/Dockerfile.auth
+    volumes:
+      - ../services/auth/dist/:/rcp-auth/auth/dist/:ro
+  # test_mongo:
+  #   image: mongo:latest
+  #   container_name: 'recipiece-test-db'
+  #   volumes:
+  #     - ./mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
+  #     - ./mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
+  #     - ./mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: recipiece
+  #     MONGO_INITDB_ROOT_PASSWORD: test1234
+  #     MONGO_INITDB_DATABASE: recipiece
+  #   ports:
+  #     - 27018:27017

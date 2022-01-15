@@ -1,0 +1,12 @@
+FROM node:alpine
+
+WORKDIR /rcp-auth
+COPY auth auth/
+COPY common common/
+COPY tsconfig.json .
+
+RUN npm i -g typescript nodemon
+RUN cd common && npm i && tsc --build
+RUN cd auth && npm i && tsc --build
+
+ENTRYPOINT nodemon auth/dist/src/app.js

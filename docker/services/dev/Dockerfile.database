@@ -1,0 +1,13 @@
+FROM node:alpine
+
+WORKDIR /rcp-database
+COPY database database/
+COPY common common/
+COPY tsconfig.json .
+
+RUN npm i -g typescript nodemon
+RUN cd database && npm i
+RUN cd common && npm i
+RUN cd database && tsc --build
+
+ENTRYPOINT nodemon database/dist/src/app.js
