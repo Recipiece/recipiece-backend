@@ -1,14 +1,14 @@
+import { Utils } from "recipiece-common";
 import { createClient, RedisClientType } from "redis";
-import { nou } from "../utils";
 
-let client: RedisClientType<any> = undefined;
+let client: RedisClientType<any, any> = undefined;
 
 export function getNsKey(rawKey: string): string {
   return `memcache:${rawKey}`;
 }
 
 export async function getConnection() {
-  if(nou(client)) {
+  if(Utils.nou(client)) {
     client = createClient();
     client.on('error', (err) => {
       throw err;

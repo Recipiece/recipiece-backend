@@ -1,5 +1,4 @@
-import { IUserOwnedModel } from "@common/model";
-
+import { IUserOwnedModel } from 'recipiece-common';
 
 export interface ISession extends IUserOwnedModel {
   id: string;

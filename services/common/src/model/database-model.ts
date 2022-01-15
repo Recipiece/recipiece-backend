@@ -3,7 +3,7 @@ import { deleteEntity, saveEntity } from '../interop/db-interop';
 import { utcNow } from '../utils';
 
 export abstract class DatabaseModel<T extends IBaseModel> implements IBaseModel {
-  id: string;
+  id: string | undefined;
   created: number;
 
   protected constructor(

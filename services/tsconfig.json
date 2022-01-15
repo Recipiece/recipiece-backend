@@ -4,18 +4,9 @@
     "esModuleInterop": true,
     "target": "es6",
     "noImplicitAny": true,
+    "removeComments": true,
     "moduleResolution": "node",
     "allowJs": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "node_modules/*"
-      ]
-    }
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

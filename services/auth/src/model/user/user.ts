@@ -1,6 +1,4 @@
-import { DatabaseConstants } from '@common/constants';
-import { DatabaseModel } from '@common/model';
-import { utcNow } from '@common/utils';
+import { DatabaseConstants, DatabaseModel, Utils } from 'recipiece-common';
 import { IUser } from './user.i';
 
 export class User extends DatabaseModel<IUser> implements IUser {
@@ -21,7 +19,7 @@ export class User extends DatabaseModel<IUser> implements IUser {
     this.permissions = model?.permissions || [];
     this.subscriptionId = model?.subscriptionId || '';
     this.id = model?.id;
-    this.created = model.created || utcNow();
+    this.created = model.created || Utils.utcNow();
   }
 
   public asModel(): Partial<IUser> {

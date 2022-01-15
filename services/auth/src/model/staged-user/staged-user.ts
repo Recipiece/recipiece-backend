@@ -1,5 +1,4 @@
-import { DatabaseConstants } from '@common/constants';
-import { DatabaseModel } from '@common/model';
+import { DatabaseConstants, DatabaseModel } from 'recipiece-common';
 import { IStagedUser } from './staged-user.i';
 
 export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUser {

@@ -28,9 +28,9 @@ export class Environment {
   static readonly PAYPAL_HOST: string = process.env.RCP_PAYPAL_HOST || 'https://api-m.sandbox.paypal.com/v1';
 
   // service ports
-  static readonly AUTH_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_AUTH_PORT || '7801');
+  static readonly AUTH_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_AUTH_PORT || '8801');
   static readonly AUTH_SERVICE_NAME: string = process.env.RCP_SRV_AUTH_NAME || 'auth';
-  static readonly RECIPE_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_RECIPE_PORT || '7802');
+  static readonly RECIPE_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_RECIPE_PORT || '8802');
   static readonly RECIPE_SERVICE_NAME: string = process.env.RCP_SRV_AUTH_NAME || 'recipe';
   static readonly DB_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_RECIPE_PORT || '9001');
   static readonly DB_SERVICE_NAME: string = process.env.RCP_SRV_AUTH_NAME || 'mongo';

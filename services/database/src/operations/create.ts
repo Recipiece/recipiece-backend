@@ -1,4 +1,4 @@
-import { IBaseModel } from '@common/model';
+import { IBaseModel } from 'recipiece-common';
 import { getCollection } from './util';
 
 export async function createEntity<T extends IBaseModel>(c: string, entity: Partial<T>): Promise<Partial<T>> {

@@ -1,15 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "module": "system",
-    "declaration": true,
-    "declarationMap": true,
-    "composite": true,
     "baseUrl": "src",
     "rootDir": "src",
-    // "outFile": "./lib/common.js"
-    "outDir": "./lib"
+    "outDir": "dist",
+    "sourceMap": true,
+    "declaration": true
   },
-  "references": [],
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+  ]
 }

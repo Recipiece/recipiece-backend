@@ -1,5 +1,4 @@
-import { DatabaseModel } from '@common/model';
-import {DatabaseConstants} from '@common/constants';
+import { DatabaseConstants, DatabaseModel } from 'recipiece-common';
 import { ISession } from './session.i';
 
 export class Session extends DatabaseModel<ISession> implements ISession {

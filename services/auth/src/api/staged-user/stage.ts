@@ -1,22 +1,20 @@
-import { BadRequestError } from '@common/error';
-import { ConflictError } from '@common/error/conflict-error';
-import { nou } from '@common/utils';
 import { encryptPassword } from '../../encrypt/encrypt-password';
 import { StagedUser } from '../../model/staged-user/staged-user';
 import { randomUUID } from 'crypto';
 import { getUserByUsername } from '../user/get-by-username';
+import { BadRequestError, ConflictError, Utils } from 'recipiece-common';
 
 export async function stageUser(email: string, password: string): Promise<StagedUser> {
-  if (nou(email)) {
+  if (Utils.nou(email)) {
     throw new BadRequestError('email', email);
   }
-  if (nou(password)) {
+  if (Utils.nou(password)) {
     throw new BadRequestError('password', password);
   }
 
   // check that the email doesn't exist already on a user
   const existingUser = await getUserByUsername(email);
-  if(!nou(existingUser)) {
+  if(!Utils.nou(existingUser)) {
     throw new ConflictError();
   }
 

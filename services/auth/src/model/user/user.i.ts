@@ -1,4 +1,4 @@
-import { IBaseModel } from '@common/model';
+import { IBaseModel } from "recipiece-common";
 
 export interface IUser extends IBaseModel {
   id: string;

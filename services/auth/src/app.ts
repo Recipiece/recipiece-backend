@@ -1,12 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import bodyparser from 'body-parser';
-import { Environment } from '@common/environment';
 import { stagedUserRouter } from './route/staged-user';
+import { Environment } from 'recipiece-common';
 
 const app = express();
-app.use(cors);
-app.use(bodyparser);
+app.use(cors());
+app.use(bodyparser.json());
 
 app.get('/health-check', (_, res) => {
   res.status(200).send('Hello from Recipiece Auth!');
@@ -15,5 +15,5 @@ app.get('/health-check', (_, res) => {
 app.use('/staged-user', stagedUserRouter);
 
 app.listen(Environment.AUTH_SERIVCE_PORT, () => {
-  console.log('Auth is ready.');
+  console.log(`Auth is ready on port ${Environment.AUTH_SERIVCE_PORT}` );
 });
