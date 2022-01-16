@@ -1,36 +1,52 @@
-import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { deleteEntity, getCollection, saveEntity } from './operations';
-import { Environment } from '@common/environment';
+import express from 'express';
+import {
+  deleteManyOp,
+  deleteOneOp,
+  findOneOp,
+  findOp,
+  insertManyOp,
+  insertOneOp,
+  updateManyOp,
+  updateOneOp,
+} from 'operations';
+import { BadRequestError } from 'recipiece-common';
+import { restoreObjectId, stripObjectId } from './utils';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post('/:collection/save', async (request: Request, response: Response) => {
-  const savedEntity = await saveEntity(request.params.collection, request.body);
-  response.send(savedEntity);
+const VALID_OPS: { [op: string]: Function } = {
+  updateMany: updateManyOp,
+  deleteOne: deleteOneOp,
+  deleteMany: deleteManyOp,
+};
+
+app.post('/:collection/find-one', async (req, res) => {
+  const response = await findOneOp(req.params.collection, req.body.query);
+  res.status(200).send(response);
 });
 
-app.delete('/:collection/delete', async (request: Request, response: Response) => {
-  await deleteEntity(request.params.collection, request.body.id);
-  response.status(204).send();
+app.post('/:collection/find', async (req, res) => {
+  const page = +(req.query.page ?? '0');
+  const results = findOp(req.params.collection, page, req.body.query);
+  res.status(200).send(results);
 });
 
-app.post('/:collection/query', async (request: Request, response: Response) => {
-  const collection = await getCollection(request.params.collection);
-  const page = Number.parseInt(<string>request.query.page || '0');
-  const query = request.body;
-  const cursor = collection
-    .find(query)
-    .skip(page * Environment.DB_PAGE_SIZE)
-    .limit(Environment.DB_PAGE_SIZE);
-  response.send({
-    results: cursor.toArray(),
-  });
+app.post('/:collection/insert-one', async (req, res) => {
+  const results = await insertOneOp(req.params.collection, req.body.data);
+  res.status(200).send(results);
 });
 
-app.listen(Environment.DB_SERIVCE_PORT, '0.0.0.0', () => {
-  console.log('Listening on port 7801');
+app.post('/:collection/insert-many', async (req, res) => {
+  const results = await insertManyOp(req.params.collection, req.body.data);
+  res.status(200).send(results);
 });
 
+app.post('/:collection/update-one', async (req, res) => {
+  const results = await updateOneOp(req.params.collection, req.body.query, req.body.data);
+  res.status(200).send(results);
+});
+
+app.post('/:collection/update-many', async (req, res) => {});

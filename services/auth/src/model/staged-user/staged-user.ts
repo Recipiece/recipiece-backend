@@ -20,6 +20,14 @@ export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUse
   }
 
   public asModel(): Partial<IStagedUser> {
-    throw new Error('Method not implemented.');
+    return {
+      id: this.id,
+      created: this.created,
+      email: this.email,
+      password: this.password,
+      salt: this.salt,
+      nonce: this.nonce,
+      token: this.token,
+    }
   }
 }

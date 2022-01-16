@@ -1,7 +1,4 @@
-import { Database } from '@common/database';
-import { DatabaseModel } from '@common/model';
-import { utcNow } from '@common/utils';
-import { container } from 'tsyringe';
+import { DatabaseConstants, DatabaseModel } from 'recipiece-common';
 import { IRecipe, IRecipeAdvancedOptions, IRecipeSection } from './recipe.i';
 
 export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
@@ -12,11 +9,9 @@ export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
   sections: IRecipeSection[];
   tags: string[];
   owner: string;
-  id: string;
-  readonly created: number;
 
   constructor(model?: Partial<IRecipe>) {
-    super(container.resolve(Database), 'Recipes');
+    super(DatabaseConstants.collections.recipes)
     this.name = model?.name || '';
     this.description = model?.description || '';
     this.private = model?.private || false;
@@ -24,8 +19,6 @@ export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
     this.sections = model?.sections || [];
     this.tags = model?.tags || [];
     this.owner = model?.owner || '';
-    this.id = model?.id;
-    this.created = model?.created || utcNow();
   }
 
   public asModel(): Partial<IRecipe> {

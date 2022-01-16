@@ -1,37 +1,94 @@
+import { EnvironmentConstants } from './constants/environment-contstants';
+
 export class Environment {
   // db basics
-  static readonly DB_HOST: string = process.env.RCP_DB_HOST || 'localhost';
-  static readonly DB_PORT: number = Number.parseInt(process.env.RCP_DB_PORT || '27017');
-  static readonly DB_PASSWORD: string = process.env.RCP_DB_PASS || 'test1234';
-  static readonly DB_USER: string = process.env.RCP_DB_USER || 'recipiece';
-  static readonly DB_NAME: string = process.env.RCP_DB_NAME || 'recipiece';
-  static readonly DB_PAGE_SIZE: number = Number.parseInt(process.env.RCP_DB_PAGE_SIZE || '100');
+  static get DB_HOST(): string {
+    return process.env[EnvironmentConstants.variables.dbHost] || EnvironmentConstants.defaults.dbHost;
+  }
+  static get DB_PORT(): number {
+    return Number.parseInt(process.env[EnvironmentConstants.variables.dbPort] || EnvironmentConstants.defaults.dbPort);
+  }
+  static get DB_PASSWORD(): string {
+    return process.env[EnvironmentConstants.variables.dbPassword] || EnvironmentConstants.defaults.dbPassword;
+  }
+  static get DB_USER(): string {
+    return process.env[EnvironmentConstants.variables.dbUser] || EnvironmentConstants.defaults.dbUser;
+  }
+  static get DB_NAME(): string {
+    return process.env[EnvironmentConstants.variables.dbName] || EnvironmentConstants.defaults.dbName;
+  }
+  static get DB_PAGE_SIZE(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.dbPageSize] || EnvironmentConstants.defaults.dbPageSize
+    );
+  }
 
   // memcache values
-  static readonly MEMCACHE_HOST: string = process.env.RCP_MEM_HOST || 'localhost';
-  static readonly MEMCACHE_PORT: number = Number.parseInt(process.env.RCP_MEM_PORT || '6379');
+  static get MEMCACHE_HOST(): string {
+    return process.env[EnvironmentConstants.variables.memcacheHost] || EnvironmentConstants.defaults.memcacheHost;
+  }
+  static get MEMCACHE_PORT(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.memcachePort] || EnvironmentConstants.defaults.memcachePort
+    );
+  }
   // memcache exipry, in seconds
-  static readonly MEMCACHE_EXP: number = Number.parseInt(process.env.RCP_MEM_EXP || '3600');
-
-  // app config values
-  static readonly APP_HOST: string = process.env.RCP_APP_HOST || '0.0.0.0';
-  static readonly APP_PORT: number = Number.parseInt(process.env.RCP_APP_PORT || '8080');
-
-  // whether or not we're running locally
-  // 0 == false, 1 == true
-  static readonly LOCAL: boolean = Number.parseInt(process.env.RCP_APP_LOCAL || '1') != 0;
+  static get MEMCACHE_EXP(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.memcacheExpiry] || EnvironmentConstants.defaults.memcacheExpiry
+    );
+  }
 
   // email address to use for sending emails
-  static readonly SUPPORT_EMAIL: string = process.env.RCP_SUPPORT_EMAIL || 'support@recipiece.org';
+  static get SUPPORT_EMAIL(): string {
+    return (
+      process.env[EnvironmentConstants.variables.supportEmailAddress] ||
+      EnvironmentConstants.defaults.supportEmailAddress
+    );
+  }
 
   // paypal values
-  static readonly PAYPAL_HOST: string = process.env.RCP_PAYPAL_HOST || 'https://api-m.sandbox.paypal.com/v1';
+  static get PAYPAL_HOST(): string {
+    return process.env[EnvironmentConstants.variables.paypalHost] || EnvironmentConstants.defaults.paypalHost;
+  }
 
   // service ports
-  static readonly AUTH_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_AUTH_PORT || '8801');
-  static readonly AUTH_SERVICE_NAME: string = process.env.RCP_SRV_AUTH_NAME || 'auth';
-  static readonly RECIPE_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_RECIPE_PORT || '8802');
-  static readonly RECIPE_SERVICE_NAME: string = process.env.RCP_SRV_AUTH_NAME || 'recipe';
-  static readonly DB_SERIVCE_PORT: number = Number.parseInt(process.env.RCP_SRV_RECIPE_PORT || '9001');
-  static readonly DB_SERVICE_NAME: string = process.env.RCP_SRV_AUTH_NAME || 'mongo';
+  static get AUTH_SERIVCE_PORT(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.authServicePort] || EnvironmentConstants.defaults.authServicePort
+    );
+  }
+  static get AUTH_SERVICE_NAME(): string {
+    return process.env[EnvironmentConstants.variables.authServiceName] || EnvironmentConstants.defaults.authServiceName;
+  }
+  static get RECIPE_SERIVCE_PORT(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.recipeServicePort] || EnvironmentConstants.defaults.recipeServicePort
+    );
+  }
+  static get RECIPE_SERVICE_NAME(): string {
+    return (
+      process.env[EnvironmentConstants.variables.recipeServiceName] || EnvironmentConstants.defaults.recipeServiceName
+    );
+  }
+  static get DB_SERIVCE_PORT(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.dbServicePort] || EnvironmentConstants.defaults.dbServicePort
+    );
+  }
+  static get DB_SERVICE_NAME(): string {
+    return process.env[EnvironmentConstants.variables.dbServiceName] || EnvironmentConstants.defaults.dbServiceName;
+  }
+  static get MEMCACHE_SERIVCE_PORT(): number {
+    return Number.parseInt(
+      process.env[EnvironmentConstants.variables.memcacheServicePort] ||
+        EnvironmentConstants.defaults.memcacheServicePort
+    );
+  }
+  static get MEMCACHE_SERVICE_NAME(): string {
+    return (
+      process.env[EnvironmentConstants.variables.memcacheServiceName] ||
+      EnvironmentConstants.defaults.memcacheServiceName
+    );
+  }
 }

@@ -1,0 +1,11 @@
+FROM node:alpine
+
+WORKDIR /rcp-recipes
+COPY recipes recipes/
+COPY common common/
+COPY tsconfig.json .
+
+RUN npm i -g typescript nodemon ts-node
+RUN cd common && yarn build && yarn link
+
+ENTRYPOINT cd recipes && yarn link recipiece-common && nodemon src/app.ts

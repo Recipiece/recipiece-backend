@@ -1,13 +1,14 @@
-import { DatabaseModel } from '../model/database-model';
-import { Environment } from '../environment';
-import { buildRequest, IInteropRequest } from './interop.i';
-import { IBaseModel } from '../model/base-model.i';
 import { Endpoints } from '../constants/endpoint-constants';
+import { IBaseModel } from '../model/base-model.i';
+import { DatabaseModel } from '../model/database-model';
+import { IInteropRequest } from './interop.i';
 
 export async function fetchDb<T>(args: IInteropRequest): Promise<Partial<T>> {
-  const formedUrl = `http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}${args.endpoint}`;
-  const response = await fetch(formedUrl, buildRequest(args));
-  return await response.json();
+  // const formedUrl = `http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}${args.endpoint}`;
+  // console.log(formedUrl)
+  // const response = await fetch(formedUrl, buildRequest(args));
+  // return await response.json();
+  return {};
 }
 
 export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K>>(entity: T): Promise<Partial<K>> {

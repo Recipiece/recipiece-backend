@@ -7,39 +7,49 @@ services:
       - 6379:6379
   mongodb:
     image: mongo:latest
-    container_name: 'recipiece-db'
     volumes:
-      - ./mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
-      - ./mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
-      - ./mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
+      - ../data/mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
+      - ../data/mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
+      - ../data/mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: recipiece
       MONGO_INITDB_ROOT_PASSWORD: test1234
       MONGO_INITDB_DATABASE: recipiece
     ports:
       - 27017:27017
-  # rcp-database:
-  #   build:
-  #     context: ../services
-  #     dockerfile: ./services/dev/Dockerfile.database
-  #   volumes:
-  #     - ../services/database/dist/:/rcp-database/database/dist/:ro
+  rcp-database:
+    container_name: "recipiece-database"
+    build:
+      context: ../services
+      dockerfile: ../docker/services/dev/Dockerfile.database
+    volumes:
+      - ../services/database/:/rcp-database/database/
+    ports:
+      - "7801:7801"
+  rcp-memcache:
+    container_name: "recipiece-memcache"
+    build:
+      context: ../services
+      dockerfile: ../docker/services/dev/Dockerfile.memcache
+    volumes:
+      - ../services/memcache/:/rcp-memcache/memcache/
+    ports:
+      - "7802:7802"
   rcp-auth:
+    container_name: "recipiece-auth"
     build:
       context: ../services
       dockerfile: ../docker/services/dev/Dockerfile.auth
+    ports:
+      - "8801:8801"
     volumes:
-      - ../services/auth/dist/:/rcp-auth/auth/dist/:ro
-  # test_mongo:
-  #   image: mongo:latest
-  #   container_name: 'recipiece-test-db'
-  #   volumes:
-  #     - ./mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
-  #     - ./mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
-  #     - ./mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: recipiece
-  #     MONGO_INITDB_ROOT_PASSWORD: test1234
-  #     MONGO_INITDB_DATABASE: recipiece
-  #   ports:
-  #     - 27018:27017
+      - ../services/auth/:/rcp-auth/auth/
+  rcp-recipes:
+    container_name: "recipiece-recipes"
+    build:
+      context: ../services
+      dockerfile: ../docker/services/dev/Dockerfile.recipes
+    ports:
+      - "8802:8802"
+    volumes:
+      - ../services/recipes/:/rcp-recipes/recipes/

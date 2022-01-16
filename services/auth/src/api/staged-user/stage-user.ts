@@ -31,6 +31,7 @@ export async function stageUser(email: string, password: string): Promise<Staged
   try {
     return new StagedUser(await stagedUser.save());
   } catch (keyErr) {
+    console.log(keyErr)
     throw new ConflictError();
   }
 }

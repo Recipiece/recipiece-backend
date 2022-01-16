@@ -5,9 +5,7 @@ COPY database database/
 COPY common common/
 COPY tsconfig.json .
 
-RUN npm i -g typescript nodemon
-RUN cd database && npm i
-RUN cd common && npm i
-RUN cd database && tsc --build
+RUN npm i -g typescript nodemon ts-node
+RUN cd common && yarn build && yarn link
 
-ENTRYPOINT nodemon database/dist/src/app.js
+ENTRYPOINT cd database && yarn link recipiece-common && nodemon src/app.ts

@@ -2,7 +2,12 @@
   "name": "recipes",
   "version": "1.0.0",
   "description": "recipe functionality for recipiece",
-  "main": "index.js",
+  "main": "dist/app.js",
+  "scripts": {
+    "test": "ts-mocha --paths -p tsconfig.test.json test/**/*.spec.ts",
+    "build": "yarn link recipiece-common && tsc --build",
+    "build-common": "cd ../common && yarn build && cd - && yarn build"
+  },
   "author": "Steven Rosendahl",
   "license": "MIT",
   "dependencies": {

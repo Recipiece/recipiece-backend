@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyparser from 'body-parser';
-import { stagedUserRouter } from './route/staged-user';
+import { stagedUserRouter } from './route/staged-user-routes';
 import { Environment } from 'recipiece-common';
 
 const app = express();
@@ -15,5 +15,5 @@ app.get('/health-check', (_, res) => {
 app.use('/staged-user', stagedUserRouter);
 
 app.listen(Environment.AUTH_SERIVCE_PORT, () => {
-  console.log(`Auth is ready on port ${Environment.AUTH_SERIVCE_PORT}` );
+  console.log(`Auth listening on port ${Environment.AUTH_SERIVCE_PORT}` );
 });

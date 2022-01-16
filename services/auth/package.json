@@ -2,10 +2,11 @@
   "name": "recipiece-auth",
   "version": "1.0.0",
   "description": "authentication and authorization for recipiece",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "ts-mocha --paths -p tsconfig.test.json test/**/*.spec.ts",
-    "build": "tsc --build ."
+    "build": "yarn link recipiece-common && tsc --build",
+    "build-common": "cd ../common && yarn build && cd - && yarn build"
   },
   "license": "MIT",
   "dependencies": {
