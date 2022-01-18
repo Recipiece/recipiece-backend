@@ -1,4 +1,4 @@
-import { IUserOwnedModel } from 'recipiece-common';
+import { IUserOwnedModel } from '../user-owned-model.i';
 
 export type RecipeStepLengthUnit = 'h' | 'm' | 's' | 'd';
 

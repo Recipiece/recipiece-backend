@@ -1,8 +1,7 @@
-import { encryptPassword } from '../../encrypt/encrypt-password';
-import { StagedUser } from '../../model/staged-user/staged-user';
 import { randomUUID } from 'crypto';
+import { BadRequestError, ConflictError, StagedUser, Utils } from 'recipiece-common';
+import { encryptPassword } from '../../encrypt/encrypt-password';
 import { getUserByUsername } from '../user/get-by-username';
-import { BadRequestError, ConflictError, Utils } from 'recipiece-common';
 
 export async function stageUser(email: string, password: string): Promise<StagedUser> {
   if (Utils.nou(email)) {
@@ -14,7 +13,7 @@ export async function stageUser(email: string, password: string): Promise<Staged
 
   // check that the email doesn't exist already on a user
   const existingUser = await getUserByUsername(email);
-  if(!Utils.nou(existingUser)) {
+  if (!Utils.nou(existingUser)) {
     throw new ConflictError();
   }
 
@@ -31,7 +30,8 @@ export async function stageUser(email: string, password: string): Promise<Staged
   try {
     return new StagedUser(await stagedUser.save());
   } catch (keyErr) {
-    console.log(keyErr)
+    // console.log(keyErr);
     throw new ConflictError();
   }
 }
+

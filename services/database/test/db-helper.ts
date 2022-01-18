@@ -3,17 +3,21 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { EnvironmentConstants } from 'recipiece-common';
 
 export async function initDb() {
-  const mongod = await MongoMemoryServer.create({
-    instance: {
-      port: 4444,
-      dbName: EnvironmentConstants.defaults.dbName,
-      auth: true,
-    },
-    auth: {
-      customRootName: EnvironmentConstants.defaults.dbUser,
-      customRootPwd: EnvironmentConstants.defaults.dbPassword,
-    },
-  });
+  let mongod = global.mongod;
+  if(!mongod) {
+    mongod = await MongoMemoryServer.create({
+      instance: {
+        port: 4444,
+        dbName: EnvironmentConstants.defaults.dbName,
+        auth: true,
+      },
+      auth: {
+        customRootName: EnvironmentConstants.defaults.dbUser,
+        customRootPwd: EnvironmentConstants.defaults.dbPassword,
+      },
+    });
+    global.mongod = mongod;
+  }
   const connection = await MongoClient.connect(mongod.getUri());
   const database = connection.db(EnvironmentConstants.defaults.dbName);
   process.env[EnvironmentConstants.variables.dbPort] = '4444';

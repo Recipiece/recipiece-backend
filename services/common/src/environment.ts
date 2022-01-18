@@ -91,4 +91,11 @@ export class Environment {
       EnvironmentConstants.defaults.memcacheServiceName
     );
   }
+
+  // internal user for handling service -> service requests
+  static get INTERNAL_USER_TOKEN(): string {
+    return (
+      process.env[EnvironmentConstants.variables.internalUserToken] || EnvironmentConstants.defaults.internalUserToken
+    );
+  }
 }

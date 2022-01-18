@@ -1,5 +1,4 @@
-import { DatabaseConstants, DbI } from 'recipiece-common';
-import { User } from '../../model/user/user';
+import { DatabaseConstants, DbI, User } from 'recipiece-common';
 
 export async function getUserByUsername(username: string): Promise<User | undefined> {
   try {

@@ -1,12 +1,13 @@
-import express from 'express';
 import cors from 'cors';
-import bodyparser from 'body-parser';
+import express from 'express';
+import { Environment, rcpErrorMiddleware, rcpInternalAuthMiddleware, Utils } from 'recipiece-common';
 import { memdel, memget, memhas, memset } from './operations';
-import { Environment, Utils } from 'recipiece-common';
 
 const app = express();
 app.use(cors());
-app.use(bodyparser.json());
+app.use(express.json());
+app.use('*', rcpErrorMiddleware);
+app.use('*', rcpInternalAuthMiddleware);
 
 app.get('/:key', async (req, res) => {
   const key = req.params.key;

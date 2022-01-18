@@ -1,4 +1,4 @@
 export interface IBaseModel {
-  id: string | undefined;
+  _id: string | undefined;
   created: number;
 }

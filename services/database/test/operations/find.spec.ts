@@ -2,7 +2,7 @@ import expect from 'expect';
 import 'mocha';
 import { Db, MongoClient } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Environment, EnvironmentConstants } from 'recipiece-common';
+import { Environment } from 'recipiece-common';
 import { findOp } from '../../src/operations';
 import { initDb } from '../db-helper';
 
@@ -16,11 +16,8 @@ describe('Find Operation', () => {
   });
 
   after(async () => {
-    if (connection) {
-      await connection.close();
-    }
-    if (mongod) {
-      await mongod.stop();
+    if (!!connection) {
+      connection.close();
     }
   });
 

@@ -21,6 +21,8 @@ class EnvironmentDefaults {
   static readonly dbServicePort = '7801';
   static readonly memcacheServiceName = 'recipiece-memcache';
   static readonly memcacheServicePort = '7802';
+
+  static readonly internalUserToken = 'internal@recipiece.org';
 }
 
 class EnvironmentVariables {
@@ -46,6 +48,8 @@ class EnvironmentVariables {
   static readonly dbServicePort = 'RCP_SRV_DB_PORT';
   static readonly memcacheServiceName = 'RCP_SRV_MEMCACHE_NAME';
   static readonly memcacheServicePort = 'RCP_SRV_MEMCACHE_PORT';
+
+  static readonly internalUserToken = 'RCP_INTERNAL_USER';
 }
 
 export class EnvironmentConstants {

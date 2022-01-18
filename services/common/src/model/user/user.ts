@@ -1,4 +1,6 @@
-import { DatabaseConstants, DatabaseModel, Utils } from 'recipiece-common';
+import { DatabaseConstants } from '../../constants/database-constants';
+import { utcNow } from '../../utils';
+import { DatabaseModel } from '../database-model';
 import { IUser } from './user.i';
 
 export class User extends DatabaseModel<IUser> implements IUser {
@@ -9,8 +11,6 @@ export class User extends DatabaseModel<IUser> implements IUser {
   preferences: any;
   permissions: string[];
   subscriptionId?: string;
-  id: string;
-  created: number;
 
   constructor(model?: Partial<IUser>) {
     super(DatabaseConstants.collections.users);
@@ -18,13 +18,11 @@ export class User extends DatabaseModel<IUser> implements IUser {
     this.preferences = model?.preferences || {};
     this.permissions = model?.permissions || [];
     this.subscriptionId = model?.subscriptionId || '';
-    this.id = model?.id;
-    this.created = model.created || Utils.utcNow();
   }
 
   public asModel(): Partial<IUser> {
     return {
-      id: this.id,
+      _id: this._id,
       created: this.created,
       email: this.email,
       preferences: this.preferences,

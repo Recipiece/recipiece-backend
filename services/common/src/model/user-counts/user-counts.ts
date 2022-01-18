@@ -1,4 +1,5 @@
-import { DatabaseConstants, DatabaseModel } from 'recipiece-common';
+import { DatabaseConstants } from '../../constants/database-constants';
+import { DatabaseModel } from '../database-model';
 import { IUserCounts } from './user-counts.i';
 
 export class UserCounts extends DatabaseModel<IUserCounts> implements IUserCounts {

@@ -1,9 +1,10 @@
+import { restoreObjectId } from "../utils";
 import { getCollection } from "./util";
 
-export async function deleteOneOp(c: string, query: any) {
+export async function deleteOneOp(c: string, query: any): Promise<{deleted: number}> {
   const collection = await getCollection(c);
-  const response = await collection.deleteOne(query);
+  const response = await collection.deleteOne(restoreObjectId(query));
   return {
-    deleted: response.acknowledged,
+    deleted: response.deletedCount,
   }
 }

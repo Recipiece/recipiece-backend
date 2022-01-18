@@ -1,8 +1,16 @@
-import { Environment } from "../environment";
-import { buildRequest, IInteropRequest } from "./interop.i";
+import axios, { AxiosRequestConfig } from 'axios';
+import { Environment } from '../environment';
+import { getAuthHeader } from './util';
 
-export async function fetchAuth<T>(args: IInteropRequest): Promise<Partial<T>> {
-  const formedUrl = `http://${Environment.AUTH_SERVICE_NAME}:${Environment.AUTH_SERIVCE_PORT}${args.endpoint}`;
-  const response = await fetch(formedUrl, buildRequest(args));
-  return await response.json();
+export async function authRequest<RequestT, ResponseT>(request: AxiosRequestConfig<RequestT>): Promise<ResponseT> {
+  const fullRequest: AxiosRequestConfig<RequestT> = {
+    ...request,
+    url: `http://${Environment.AUTH_SERVICE_NAME}:${Environment.AUTH_SERIVCE_PORT}${request.url}`,
+    headers: {
+      ...(request.headers || {}),
+      ...getAuthHeader(),
+    },
+  };
+  const response = await axios.request(fullRequest);
+  return response.data;
 }

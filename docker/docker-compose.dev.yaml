@@ -11,6 +11,8 @@ services:
       - ../data/mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
       - ../data/mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
       - ../data/mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
+      # make sure this one runs last
+      - ../data/mongo-dev.js:/docker-entrypoint-initdb.d/mongo-zed.js:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: recipiece
       MONGO_INITDB_ROOT_PASSWORD: test1234
@@ -23,7 +25,8 @@ services:
       context: ../services
       dockerfile: ../docker/services/dev/Dockerfile.database
     volumes:
-      - ../services/database/:/rcp-database/database/
+      - ../services/database/src/:/rcp-database/database/src/
+      - ../services/common/src/:/rcp-database/common/src/
     ports:
       - "7801:7801"
   rcp-memcache:
@@ -32,7 +35,8 @@ services:
       context: ../services
       dockerfile: ../docker/services/dev/Dockerfile.memcache
     volumes:
-      - ../services/memcache/:/rcp-memcache/memcache/
+      - ../services/memcache/src/:/rcp-memcache/memcache/src/
+      - ../services/common/src/:/rcp-memcache/common/src/
     ports:
       - "7802:7802"
   rcp-auth:
@@ -43,7 +47,8 @@ services:
     ports:
       - "8801:8801"
     volumes:
-      - ../services/auth/:/rcp-auth/auth/
+      - ../services/auth/src:/rcp-auth/auth/src
+      - ../services/common/src/:/rcp-auth/common/src/
   rcp-recipes:
     container_name: "recipiece-recipes"
     build:
@@ -52,4 +57,5 @@ services:
     ports:
       - "8802:8802"
     volumes:
-      - ../services/recipes/:/rcp-recipes/recipes/
+      - ../services/recipes/src/:/rcp-recipes/recipes/src/
+      - ../services/common/src/:/rcp-recipes/common/src/

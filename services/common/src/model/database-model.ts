@@ -3,18 +3,18 @@ import { deleteEntity, saveEntity } from '../interop/db-interop';
 import { utcNow } from '../utils';
 
 export abstract class DatabaseModel<T extends IBaseModel> implements IBaseModel {
-  id: string | undefined;
+  _id: string | undefined;
   created: number;
 
   protected constructor(
     public collection: string,
     json?: Partial<T>,
   ) {
-    this.id = json?.id;
+    this._id = json?._id;
     this.created = json?.created ?? utcNow();
   }
 
-  public async save(): Promise<Partial<T>> {
+  public async save(): Promise<T> {
     return await saveEntity(this);
   }
 

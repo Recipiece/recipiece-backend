@@ -5,8 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "test": "ts-mocha --paths -p tsconfig.test.json test/**/*.spec.ts",
-    "build": "yarn link recipiece-common && tsc --build",
-    "build-common": "cd ../common && yarn build && cd - && yarn build"
+    "build": "tsc --build",
+    "run-dev": "node ./nodemon-runner.js"
   },
   "author": "Steven Rosendahl",
   "license": "MIT",
@@ -16,6 +16,7 @@
     "tsyringe": "^4.6.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.13"
+    "@types/express": "^4.17.13",
+    "nodemon": "^2.0.15"
   }
 }

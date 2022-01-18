@@ -1,7 +1,5 @@
 import { comparePasswords } from 'encrypt/compare-passwords';
-import { Session } from 'model/session/session';
-import { IUser } from 'model/user/user.i';
-import { ForbiddenError, NotFoundError, Utils } from 'recipiece-common';
+import { ForbiddenError, IUser, NotFoundError, Session, Utils } from 'recipiece-common';
 import { getUserByUsername } from './get-by-username';
 
 export interface LoggedInBundle {
@@ -17,7 +15,7 @@ export async function loginUser(username: string, password: string): Promise<Log
     const expectedNonce = userLookup.nonce;
     if (comparePasswords(password, expectedPassword, expectedSalt, expectedNonce)) {
       let session = new Session({
-        owner: userLookup.id,
+        owner: userLookup._id,
       });
       await session.save();
       return {

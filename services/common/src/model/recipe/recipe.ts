@@ -1,4 +1,5 @@
-import { DatabaseConstants, DatabaseModel } from 'recipiece-common';
+import { DatabaseConstants } from '../../constants/database-constants';
+import { DatabaseModel } from '../database-model';
 import { IRecipe, IRecipeAdvancedOptions, IRecipeSection } from './recipe.i';
 
 export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
@@ -23,7 +24,7 @@ export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
 
   public asModel(): Partial<IRecipe> {
     return {
-      id: this.id,
+      _id: this._id,
       created: this.created,
       name: this.name,
       description: this.description,

@@ -1,4 +1,5 @@
-import { DatabaseConstants, DatabaseModel } from 'recipiece-common';
+import { DatabaseConstants } from '../../constants/database-constants';
+import { DatabaseModel } from '../database-model';
 import { IStagedUser } from './staged-user.i';
 
 export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUser {
@@ -7,8 +8,6 @@ export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUse
   salt: string;
   nonce: string;
   token: string;
-  id: string;
-  created: number;
 
   constructor(model?: Partial<IStagedUser>) {
     super(DatabaseConstants.collections.stagedUsers, model);
@@ -21,13 +20,13 @@ export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUse
 
   public asModel(): Partial<IStagedUser> {
     return {
-      id: this.id,
+      _id: this._id,
       created: this.created,
       email: this.email,
       password: this.password,
       salt: this.salt,
       nonce: this.nonce,
       token: this.token,
-    }
+    };
   }
 }

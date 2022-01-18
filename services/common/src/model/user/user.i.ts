@@ -1,8 +1,6 @@
-import { IBaseModel } from "recipiece-common";
+import { IBaseModel } from '../base-model.i';
 
 export interface IUser extends IBaseModel {
-  id: string;
-  created: number;
   email: string;
   password: string;
   salt: string;

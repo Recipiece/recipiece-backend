@@ -1,8 +1,4 @@
-import { DatabaseConstants, DbI, NotFoundError, Utils } from 'recipiece-common';
-import { IStagedUser } from '../../model/staged-user/staged-user.i';
-import { UserCounts } from '../../model/user-counts/user-counts';
-import { User } from '../../model/user/user';
-import { IUser } from '../../model/user/user.i';
+import { DatabaseConstants, DbI, IStagedUser, IUser, NotFoundError, User, UserCounts, Utils } from 'recipiece-common';
 
 export async function migrateStagedUser(token: string): Promise<Partial<IUser>> {
   const stagedUser = await DbI.queryEntity<IStagedUser>(DatabaseConstants.collections.stagedUsers, {
@@ -20,7 +16,7 @@ export async function migrateStagedUser(token: string): Promise<Partial<IUser>> 
     permissions: [],
   });
   const createdUser = await user.save();
-  const userCounts = new UserCounts({ owner: createdUser.id });
+  const userCounts = new UserCounts({ owner: createdUser._id });
   await userCounts.save();
   return createdUser;
 }
