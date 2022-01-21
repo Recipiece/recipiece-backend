@@ -1,5 +1,5 @@
+import * as Express from 'express';
 import { RecipieceError } from '../error/recipiece-error';
-import e, * as Express from 'express';
 
 export function rcpErrorMiddleware(err: Error, _: Express.Request, res: Express.Response, next: Express.NextFunction) {
   if (err instanceof RecipieceError) {
