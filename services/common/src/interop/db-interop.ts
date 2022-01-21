@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { Environment } from '../environment';
 import { IBaseModel } from '../model/base-model.i';
 import { DatabaseModel } from '../model/database-model';
+import { IPagedResult } from '../model/paged-result';
 import { getAuthHeader } from './util';
 
 export async function dbRequest<RequestT, ResponseT>(request: AxiosRequestConfig<RequestT>): Promise<ResponseT> {
@@ -20,8 +21,9 @@ export async function dbRequest<RequestT, ResponseT>(request: AxiosRequestConfig
 export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K>>(entity: T): Promise<K> {
   const dbOp = entity._id ? 'update-one' : 'insert-one';
   const url = `/${entity.collection}/${dbOp}`;
+  let response;
   if (dbOp === 'insert-one') {
-    return await dbRequest({
+    response = await dbRequest({
       url: url,
       method: 'POST',
       data: {
@@ -29,7 +31,7 @@ export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K
       },
     });
   } else {
-    return await dbRequest({
+    response = await dbRequest({
       url: url,
       method: 'POST',
       data: {
@@ -40,9 +42,10 @@ export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K
       },
     });
   }
+  return (response as {data: K}).data;
 }
 
-export async function queryEntity<K extends IBaseModel>(collection: string, query: any): Promise<K> {
+export async function queryEntity<K extends IBaseModel>(collection: string, query: any): Promise<IPagedResult<K>> {
   return await dbRequest({
     url: `/${collection}/find`,
     method: 'POST',
@@ -51,8 +54,8 @@ export async function queryEntity<K extends IBaseModel>(collection: string, quer
 }
 
 export async function getEntityById<K extends IBaseModel>(collection: string, id: string): Promise<K> {
-  return await dbRequest({
-    url: '/find-one',
+  const response = await dbRequest({
+    url: `/${collection}/find-one`,
     method: 'POST',
     data: {
       query: {
@@ -60,6 +63,7 @@ export async function getEntityById<K extends IBaseModel>(collection: string, id
       },
     },
   });
+  return (response as {data: K}).data;
 }
 
 export async function deleteEntity<K extends IBaseModel, T extends DatabaseModel<K>>(entity: T): Promise<any> {

@@ -3,7 +3,7 @@ db = conn.getDB("recipiece");
 
 user = db.Users.insertOne({
   _id: 'internal@recipiece.org',
-  username: "internal@recipiece.org",
+  email: "internal@recipiece.org",
 });
 
 db.UserSessions.insertOne({

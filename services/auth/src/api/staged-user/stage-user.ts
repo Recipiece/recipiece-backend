@@ -2,24 +2,26 @@ import { randomUUID } from 'crypto';
 import { BadRequestError, ConflictError, StagedUser, Utils } from 'recipiece-common';
 import { encryptPassword } from '../../encrypt/encrypt-password';
 import { getUserByUsername } from '../user/get-by-username';
+import * as E from 'express';
 
-export async function stageUser(email: string, password: string): Promise<StagedUser> {
-  if (Utils.nou(email)) {
-    throw new BadRequestError('email', email);
+export async function stageUser(req: E.Request, res: E.Response, next: E.NextFunction) {
+  const { username, password } = req.body;
+  if (Utils.nou(username)) {
+    next(new BadRequestError('username', username));
   }
   if (Utils.nou(password)) {
-    throw new BadRequestError('password', password);
+    next(new BadRequestError('password', password));
   }
 
   // check that the email doesn't exist already on a user
-  const existingUser = await getUserByUsername(email);
+  const existingUser = await getUserByUsername(username);
   if (!Utils.nou(existingUser)) {
-    throw new ConflictError();
+    next(new ConflictError());
   }
 
   const pwBundle = await encryptPassword(password);
   let stagedUser = new StagedUser({
-    email: email,
+    email: username,
     password: pwBundle.password,
     nonce: pwBundle.nonce,
     salt: pwBundle.salt,
@@ -28,10 +30,9 @@ export async function stageUser(email: string, password: string): Promise<Staged
 
   // save the staged user
   try {
-    return new StagedUser(await stagedUser.save());
+    await stagedUser.save();
+    res.status(201).send(stagedUser.asModel());
   } catch (keyErr) {
-    // console.log(keyErr);
-    throw new ConflictError();
+    next(new ConflictError());
   }
 }
-

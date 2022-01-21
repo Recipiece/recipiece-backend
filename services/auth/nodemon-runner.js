@@ -2,7 +2,7 @@ const nodemon = require('nodemon');
 const { spawnSync } = require('child_process');
 
 nodemon({
-  script: 'src/app.ts',
+  script: 'src/index.ts',
   watch: ['../common/src', './src'],
 }).on('restart', function (files) {
   console.log(files);

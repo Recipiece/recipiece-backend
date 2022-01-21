@@ -6,10 +6,7 @@ export abstract class DatabaseModel<T extends IBaseModel> implements IBaseModel 
   _id: string | undefined;
   created: number;
 
-  protected constructor(
-    public collection: string,
-    json?: Partial<T>,
-  ) {
+  protected constructor(public collection: string, json?: Partial<T>) {
     this._id = json?._id;
     this.created = json?.created ?? utcNow();
   }

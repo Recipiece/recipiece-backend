@@ -22,7 +22,7 @@ class EnvironmentDefaults {
   static readonly memcacheServiceName = 'recipiece-memcache';
   static readonly memcacheServicePort = '7802';
 
-  static readonly internalUserToken = 'internal@recipiece.org';
+  static readonly internalUserToken = 'aW50ZXJuYWxAcmVjaXBpZWNlLm9yZy5pbnRlcm5hbEByZWNpcGllY2Uub3JnLjA=';
 }
 
 class EnvironmentVariables {

@@ -1,35 +1,52 @@
 import expect from 'expect';
+import http from 'http';
 import 'mocha';
 import { Db, MongoClient } from 'mongodb';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Environment } from 'recipiece-common';
-import { findOp } from '../../src/operations';
+import supertest from 'supertest';
+import { databaseApp } from '../../src/app';
 import { initDb } from '../db-helper';
 
-describe('Find Operation', () => {
-  let mongod: MongoMemoryServer;
+describe('Find Operation', function () {
+  this.timeout(10000);
+  let server: http.Server;
+  let superapp: supertest.SuperTest<any>;
   let connection: MongoClient;
   let database: Db;
+  const collectionName = 'test-collection';
 
   before(async () => {
-    ({ mongod, connection, database } = await initDb());
+    ({ connection, database } = await initDb());
+    server = http.createServer(databaseApp);
+    superapp = supertest(server);
   });
 
-  after(async () => {
+  after(() => {
     if (!!connection) {
       connection.close();
+    }
+    if (!!server) {
+      server.close();
     }
   });
 
   afterEach(async () => {
     try {
-      const collection = database.collection('test-collection');
+      const collection = database.collection(collectionName);
       await collection.drop();
     } catch {}
   });
 
-  it('should filter on a query', async () => {
-    const collection = database.collection('test-collection');
+  it('should not allow a query-less request', async () => {
+    const findResponse = await superapp
+      .post(`/${collectionName}/find`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({});
+    expect(findResponse.status).toEqual(400);
+  });
+
+  it('should send back an empty data array if there is no data', async () => {
+    const collection = database.collection(collectionName);
     await collection.insertMany([
       {
         name: 'test1',
@@ -41,15 +58,52 @@ describe('Find Operation', () => {
         name: 'test3',
       },
     ]);
-    const results = await findOp('test-collection', { name: 'test1' });
-    expect(results.data.length).toEqual(1);
 
-    const obj = results.data[0];
-    expect(obj.name).toEqual('test1');
+    const findResponse = await superapp
+      .post(`/${collectionName}/find`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: 'not in the db',
+        },
+      });
+    expect(findResponse.status).toEqual(200);
+    const { data, page, more } = findResponse.body;
+    expect(data).toEqual([]);
+    expect(page).toBeFalsy();
+    expect(more).toBeFalsy();
+  });
+
+  it('should filter on a query', async () => {
+    const collection = database.collection(collectionName);
+    await collection.insertMany([
+      {
+        name: 'test 1',
+      },
+      {
+        name: 'test 2',
+      },
+      {
+        name: 'test 3',
+      },
+    ]);
+    const findResponse = await superapp
+      .post(`/${collectionName}/find`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: 'test 1',
+        },
+      });
+    expect(findResponse.status).toEqual(200);
+    const { data, page, more } = findResponse.body;
+
+    const obj = data[0];
+    expect(obj.name).toEqual('test 1');
     expect(obj._id).toBeTruthy();
 
-    expect(results.page).toBeFalsy();
-    expect(results.more).toBeFalsy();
+    expect(page).toBeFalsy();
+    expect(more).toBeFalsy();
   });
 
   it('should set the more flag if there is more data', async () => {
@@ -60,15 +114,22 @@ describe('Find Operation', () => {
         name: `test ${i}`,
       });
     }
-    const collection = database.collection('test-collection');
+    const collection = database.collection(collectionName);
     await collection.insertMany(values);
-    const results = await findOp('test-collection', {
-      name: {
-        $regex: /test\s*\d*/,
-      },
-    });
-    expect(results.data.length).toEqual(pageSize);
-    expect(results.more).toBeTruthy();
+    const findResponse = await superapp
+      .post(`/${collectionName}/find`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: {
+            $regex: /test \d+/.source,
+          },
+        },
+      });
+    expect(findResponse.status).toEqual(200);
+    const { data, more } = findResponse.body;
+    expect(data.length).toEqual(pageSize);
+    expect(more).toBeTruthy();
   });
 
   it('should set the more flag if there is no more data', async () => {
@@ -79,15 +140,22 @@ describe('Find Operation', () => {
         name: `test ${i}`,
       });
     }
-    const collection = database.collection('test-collection');
+    const collection = database.collection(collectionName);
     await collection.insertMany(values);
-    const results = await findOp('test-collection', {
-      name: {
-        $regex: /test 1\d1/,
-      },
-    });
-    expect(results.data.length).toBeLessThan(pageSize);
-    expect(results.more).toBeFalsy();
+    const findResponse = await superapp
+      .post(`/${collectionName}/find`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: {
+            $regex: /test 1\d1/.source,
+          },
+        },
+      });
+    expect(findResponse.status).toEqual(200);
+    const { data, more } = findResponse.body;
+    expect(data.length).toBeLessThan(pageSize);
+    expect(more).toBeFalsy();
   });
 
   it('should allow paging', async () => {
@@ -101,25 +169,36 @@ describe('Find Operation', () => {
     const collection = database.collection('test-collection');
     await collection.insertMany(values);
 
-    const firstPage = await findOp('test-collection', {
-      name: {
-        $regex: /test \d+/,
-      },
-    });
+    const firstPageResponse = await superapp
+      .post(`/${collectionName}/find`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: {
+            $regex: /test \d+/.source,
+          },
+        },
+      });
+    expect(firstPageResponse.status).toEqual(200);
+    const firstPage = firstPageResponse.body;
 
     expect(firstPage.data.length).toEqual(pageSize);
     expect(firstPage.data[firstPage.data.length - 1].name).toEqual(values[99].name);
     expect(firstPage.page).toBeTruthy();
 
-    const secondPage = await findOp(
-      'test-collection',
-      {
-        name: {
-          $regex: /test \d+/,
+    const secondPageResponse = await superapp
+      .post(`/${collectionName}/find?page=${firstPage.page}`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: {
+            $regex: /test \d+/.source,
+          },
         },
-      },
-      firstPage.page
-    );
+      });
+    expect(secondPageResponse.status).toEqual(200);
+    const secondPage = secondPageResponse.body;
+
     expect(secondPage.data.length).toEqual(pageSize);
     expect(secondPage.data[0].name).toEqual(values[100].name);
     expect(secondPage.page).toBeFalsy();

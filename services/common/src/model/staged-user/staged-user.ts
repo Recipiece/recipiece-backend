@@ -23,9 +23,6 @@ export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUse
       _id: this._id,
       created: this.created,
       email: this.email,
-      password: this.password,
-      salt: this.salt,
-      nonce: this.nonce,
       token: this.token,
     };
   }

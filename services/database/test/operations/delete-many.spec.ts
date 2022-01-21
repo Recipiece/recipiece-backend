@@ -1,34 +1,52 @@
-import 'mocha';
 import expect from 'expect';
+import http from 'http';
+import 'mocha';
 import { Db, MongoClient } from 'mongodb';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Environment } from 'recipiece-common';
+import supertest from 'supertest';
+import { databaseApp } from '../../src/app';
 import { initDb } from '../db-helper';
-import { deleteManyOp } from '../../src/operations';
 
-describe('Delete Many Operation', () => {
-  let mongod: MongoMemoryServer;
+describe('Delete Many Operation', function () {
+  this.timeout(10000);
+  let server: http.Server;
+  let superapp: supertest.SuperTest<any>;
   let connection: MongoClient;
   let database: Db;
+  const collectionName = 'test-collection';
 
   before(async () => {
-    ({ mongod, connection, database } = await initDb());
+    ({ connection, database } = await initDb());
+    server = http.createServer(databaseApp);
+    superapp = supertest(server);
   });
 
-  after(async () => {
+  after(() => {
     if (!!connection) {
       connection.close();
+    }
+    if (!!server) {
+      server.close();
     }
   });
 
   afterEach(async () => {
     try {
-      const collection = database.collection('test-collection');
+      const collection = database.collection(collectionName);
       await collection.drop();
     } catch {}
   });
 
+  it('should not allow a query-less request', async () => {
+    const deletedResponse = await superapp
+      .post(`/${collectionName}/delete-many`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({});
+    expect(deletedResponse.status).toEqual(400);
+  });
+  
   it('should delete multiple items based on a query', async () => {
-    const collection = database.collection('test-collection');
+    const collection = database.collection(collectionName);
     const values = [];
     for (let i = 0; i < 150; i++) {
       values.push({
@@ -37,12 +55,18 @@ describe('Delete Many Operation', () => {
     }
     collection.insertMany(values);
 
-    const deleted = await deleteManyOp('test-collection', {
-      name: {
-        $regex: /test \d{2,3}/,
-      },
-    });
-    expect(deleted.deleted).toBeTruthy();
+    const deletedResponse = await superapp
+      .post(`/${collectionName}/delete-many`)
+      .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
+      .send({
+        query: {
+          name: {
+            $regex: /test \d{2,3}/.source,
+          },
+        },
+      });
+    expect(deletedResponse.status).toEqual(200);
+    expect(deletedResponse.body.deleted).toBeLessThan(150);
 
     const retrievedItems = collection.find({
       name: {

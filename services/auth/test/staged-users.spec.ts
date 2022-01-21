@@ -1,28 +1,97 @@
-import { Environment } from '@common/environment';
-import { DatabaseConstants, Endpoints } from '@common/constants';
+import expect from 'expect';
+import http from 'http';
 import { describe } from 'mocha';
 import nock from 'nock';
-import expect from 'expect';
-import { stageUser } from 'auth/src/api/staged-user/stage';
+import { DatabaseConstants, Environment, IUser } from 'recipiece-common';
+import supertest from 'supertest';
+import { authApp } from '../src/app';
 
-describe('Staging Users', () => {
-  function nockStagedUserSave(email: string, password: string) {
-    return nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-      .get(`/${DatabaseConstants.collections.stagedUsers}/${Endpoints.database.save}`)
-      .reply(201, {
-        email: email,
-        password: password,
-        id: '1',
-      });
-  }
+describe('Staged Users', function () {
+  this.timeout(10000);
+  let server: http.Server;
+  let superapp: supertest.SuperTest<any>;
 
-  it('should allow users to be staged', async () => {
-    const email = 'test@asdf.qwer';
-    const password = 'pass1234';
+  before(() => {
+    server = http.createServer(authApp);
+    superapp = supertest(server);
+  });
 
-    nockStagedUserSave(email, password);
+  describe('Staging a User', () => {
+    it('should be able to stage a user', async () => {
+      const email = 'test@asdf.qwer';
+      const password = 'asdfqwer';
 
-    const stagedUser = await stageUser(email, password);
-    expect(stagedUser.id).toEqual('1');
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`)
+        .reply(201, {
+          email: email,
+          password: password,
+          id: '1',
+        });
+
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.users}/find`)
+        .reply(200, {
+          data: [],
+          more: false,
+        });
+
+      const response = await superapp
+        .post('/staged-users/')
+        .set('Content-Type', 'application/json')
+        .send({ username: email, password: password });
+      expect(response.status).toEqual(201);
+      expect(response.body.token).toBeTruthy();
+      expect(response.body.email).toEqual(email);
+    });
+
+    it('should not allow an existing username to be staged', async () => {
+      const email = 'test@asdf.qwer';
+      const password = 'asdfqwer';
+
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.users}/find`)
+        .reply(200, {
+          data: [
+            <IUser>{
+              email: email,
+            },
+          ],
+          more: false,
+        });
+
+      const response = await superapp
+        .post('/staged-users/')
+        .set('Content-Type', 'application/json')
+        .send({ username: email, password: password });
+      expect(response.status).toEqual(409);
+    });
+
+    it('should not allow and existing staged username to be staged', async () => {
+      const email = 'test@asdf.qwer';
+      const password = 'asdfqwer';
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.users}/find`)
+        .reply(200, {
+          data: [],
+          more: false,
+        });
+
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`)
+        .reply(409, {});
+
+      const response = await superapp
+        .post('/staged-users/')
+        .set('Content-Type', 'application/json')
+        .send({ username: email, password: password });
+      expect(response.status).toEqual(409);
+    });
+  });
+
+  describe('Verifying a Staged User', () => {
+    it('should allow verification with a valid token', async () => {});
+
+    it('should not allow verification with an invalid token', async () => {});
   });
 });

@@ -1,13 +1,17 @@
 import cors from 'cors';
 import express from 'express';
-import { Environment, rcpErrorMiddleware, rcpInternalAuthMiddleware, Utils } from 'recipiece-common';
+import {
+  Environment,
+  rcpErrorMiddleware,
+  rcpInternalAuthMiddleware,
+  rcpLoggerMiddleware,
+  Utils,
+} from 'recipiece-common';
 import { memdel, memget, memhas, memset } from './operations';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('*', rcpErrorMiddleware);
-app.use('*', rcpInternalAuthMiddleware);
 
 app.get('/:key', async (req, res) => {
   const key = req.params.key;
@@ -41,6 +45,8 @@ app.delete('/:key', async (req, res) => {
   res.status(204).send();
 });
 
-app.listen(Environment.MEMCACHE_SERIVCE_PORT, () => {
-  console.log(`Memcache listening on port ${Environment.MEMCACHE_SERIVCE_PORT}`);
-});
+app.use(rcpLoggerMiddleware);
+app.use(rcpErrorMiddleware);
+app.use(rcpInternalAuthMiddleware);
+
+export const memcacheApp = app;

@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { Request } from 'express';
 
 export function restoreObjectId(object: any): any {
   const copy = { ...object };

@@ -1,11 +1,15 @@
+import * as E from 'express';
 import { DatabaseConstants, DbI, IStagedUser, IUser, NotFoundError, User, UserCounts, Utils } from 'recipiece-common';
 
-export async function migrateStagedUser(token: string): Promise<Partial<IUser>> {
-  const stagedUser = await DbI.queryEntity<IStagedUser>(DatabaseConstants.collections.stagedUsers, {
+export async function migrateStagedUser(req: E.Request, res: E.Response, next: E.NextFunction) {
+  const { token } = req.params;
+  const dbResponse = await DbI.queryEntity<IStagedUser>(DatabaseConstants.collections.stagedUsers, {
     token: token,
   });
+  const stagedUser = dbResponse.data[0];
+
   if (Utils.nou(stagedUser)) {
-    throw new NotFoundError(token);
+    next(new NotFoundError(token));
   }
   const user = new User({
     email: stagedUser.email,
@@ -18,5 +22,5 @@ export async function migrateStagedUser(token: string): Promise<Partial<IUser>> 
   const createdUser = await user.save();
   const userCounts = new UserCounts({ owner: createdUser._id });
   await userCounts.save();
-  return createdUser;
+  res.status(204).send();
 }
