@@ -1,5 +1,5 @@
-import { comparePasswords } from 'encrypt/compare-passwords';
 import { ForbiddenError, IUser, NotFoundError, Session, Utils } from 'recipiece-common';
+import { comparePasswords } from '../../encrypt/compare-passwords';
 import { getUserByUsername } from './get-by-username';
 
 export interface LoggedInBundle {

@@ -1,6 +1,6 @@
-import { getUserById } from 'api/user/get-by-id';
 import { Router } from 'express';
 import { ForbiddenError, Session } from 'recipiece-common';
+import { getUserById } from '../api/user/get-by-id';
 
 const sessionRoute = Router();
 
