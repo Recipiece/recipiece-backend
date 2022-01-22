@@ -9,7 +9,7 @@
     "build": "tsc --build && cp -a ../environment/. ./dist/environment",
     "clean": "rm -rf dist"
   },
-  "license": "ISC",
+  "license": "MPL 2.0",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@types/axios": "^0.14.0",

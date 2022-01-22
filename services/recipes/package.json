@@ -9,7 +9,7 @@
     "run-dev": "node ./nodemon-runner.js"
   },
   "author": "Steven Rosendahl",
-  "license": "MIT",
+  "license": "MPL 2.0",
   "dependencies": {
     "express": "^4.17.2",
     "reflect-metadata": "^0.1.13",
