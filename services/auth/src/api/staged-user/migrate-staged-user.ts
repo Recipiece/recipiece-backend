@@ -2,7 +2,7 @@ import * as E from 'express';
 import { DatabaseConstants, DbI, IStagedUser, IUser, NotFoundError, User, UserCounts, Utils } from 'recipiece-common';
 
 export async function migrateStagedUser(req: E.Request, res: E.Response, next: E.NextFunction) {
-  const { token } = req.params;
+  const { token } = req.body;
   const dbResponse = await DbI.queryEntity<IStagedUser>(DatabaseConstants.collections.stagedUsers, {
     token: token,
   });

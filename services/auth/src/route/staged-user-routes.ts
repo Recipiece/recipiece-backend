@@ -6,4 +6,4 @@ export const stagedUserRouter = Router();
 
 stagedUserRouter.post('/', stageUser);
 
-stagedUserRouter.post('/confirm-account/:token', migrateStagedUser);
+stagedUserRouter.post('/confirm-account', migrateStagedUser);

@@ -4,14 +4,13 @@ import { ForbiddenError, Session } from 'recipiece-common';
 
 const sessionRoute = Router();
 
-sessionRoute.post('/validate-token', async (req, res) => {
+sessionRoute.post('/validate-token', async (req, res, next) => {
   const token = req.body.token;
-  const permissions = req.body.permissions;
   try {
     const session = Session.deserialize(token);
     const user = await getUserById(session.owner);
     res.status(200).send(user.asModel());
   } catch {
-    throw new ForbiddenError();
+    next(new ForbiddenError());
   }
 });

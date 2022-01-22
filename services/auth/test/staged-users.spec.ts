@@ -67,7 +67,7 @@ describe('Staged Users', function () {
       expect(response.status).toEqual(409);
     });
 
-    it('should not allow and existing staged username to be staged', async () => {
+    it('should not allow an existing staged username to be staged', async () => {
       const email = 'test@asdf.qwer';
       const password = 'asdfqwer';
       nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
@@ -90,7 +90,51 @@ describe('Staged Users', function () {
   });
 
   describe('Verifying a Staged User', () => {
-    it('should allow verification with a valid token', async () => {});
+    it('should allow verification with a valid token', async () => {
+      const email = 'test@asdf.qwer';
+      const password = 'asdfqwer';
+
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`)
+        .reply(201, (_, requestBody) => {
+          return {
+            ...JSON.parse(requestBody.toString()),
+            _id: '1110',
+          };
+        });
+
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.users}/find`)
+        .reply(200, {
+          data: [],
+          more: false,
+        });
+
+      const response = await superapp
+        .post('/staged-users/')
+        .set('Content-Type', 'application/json')
+        .send({ username: email, password: password });
+      expect(response.status).toEqual(201);
+
+      const { token } = response.body;
+
+      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+        .post(`/${DatabaseConstants.collections.users}/insert-one`)
+        .reply(201, (_, originalRequest) => {
+          return {
+            data: {
+              ...JSON.parse(originalRequest.toString()),
+              _id: '1111',
+            },
+          };
+        });
+
+      const confirmResponse = await superapp
+        .post('/staged-users/confirm-account')
+        .set('Content-Type', 'application/json')
+        .send({ token: token });
+      expect(confirmResponse.status).toEqual(201);
+    });
 
     it('should not allow verification with an invalid token', async () => {});
   });
