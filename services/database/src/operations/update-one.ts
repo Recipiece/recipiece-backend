@@ -16,7 +16,6 @@ export async function updateOneOp(req: E.Request, res: E.Response, next: E.NextF
     try {
       const collection = await getCollection(collectionName);
       const entityCopy = restoreObjectId(Object.assign({}, entity));
-      console.log('ENTITY COPY', entityCopy);
       // don't update the created timestamp
       if ('created' in entityCopy) {
         delete entityCopy.created;

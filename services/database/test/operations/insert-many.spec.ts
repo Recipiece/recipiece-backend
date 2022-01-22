@@ -1,27 +1,27 @@
 import expect from 'expect';
 import http from 'http';
-import 'mocha';
+import 'jest';
 import { Db, MongoClient } from 'mongodb';
-import { Environment } from 'recipiece-common';
+import { Environment, EnvironmentConstants } from 'recipiece-common';
 import supertest from 'supertest';
 import { databaseApp } from '../../src/app';
-import { initDb } from '../db-helper';
 
-describe('Insert Many Operation', function () {
-  this.timeout(10000);
+describe('Insert Many Operation', () => {
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
   let connection: MongoClient;
   let database: Db;
   const collectionName = 'test-collection';
 
-  before(async () => {
-    ({ connection, database } = await initDb());
+  beforeAll(async () => {
+    // @ts-ignore
+    connection = await MongoClient.connect(global.mongoUri);
+    database = connection.db(EnvironmentConstants.variables.dbName);
     server = http.createServer(databaseApp);
     superapp = supertest(server);
   });
 
-  after(() => {
+  afterAll(() => {
     if (!!connection) {
       connection.close();
     }
@@ -30,9 +30,15 @@ describe('Insert Many Operation', function () {
     }
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
     try {
-      const collection = database.collection(collectionName);
+      await database.createCollection(collectionName);
+    } catch {}
+  });
+
+  afterEach(async () => {
+    const collection = database.collection(collectionName);
+    try {
       await collection.drop();
     } catch {}
   });
@@ -75,7 +81,7 @@ describe('Insert Many Operation', function () {
 
   it('should prevent insertion of items violating key constraints', async () => {
     const collection = database.collection(collectionName);
-    await collection.createIndex({name: 1}, {unique: true});
+    await collection.createIndex({ name: 1 }, { unique: true });
     const insertResponse = await superapp
       .post(`/${collectionName}/insert-many`)
       .set('authorization', `Bearer ${Environment.INTERNAL_USER_TOKEN}`)
@@ -83,8 +89,8 @@ describe('Insert Many Operation', function () {
         data: [
           {
             name: 'test 1',
-          }
-        ]
+          },
+        ],
       });
     expect(insertResponse.status).toEqual(201);
 
@@ -95,8 +101,8 @@ describe('Insert Many Operation', function () {
         data: [
           {
             name: 'test 1',
-          }
-        ]
+          },
+        ],
       });
     expect(duplicateInsertResponse.status).toEqual(409);
   });

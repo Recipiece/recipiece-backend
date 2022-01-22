@@ -1,13 +1,14 @@
 FROM node:alpine
 
+ENV RCP_ENV_NAME docker
+
 WORKDIR /rcp-recipes
 COPY recipes recipes/
-COPY common common/
-COPY tsconfig.json .
+COPY node-common node-common/
+COPY environment environment/
+COPY tsconfig.prod.json .
 
 RUN npm i -g typescript ts-node
 RUN cd common && yarn build && yarn link
-
-ENV RCP_INTERNAL_USER="aW50ZXJuYWxAcmVjaXBpZWNlLm9yZy5pbnRlcm5hbEByZWNpcGllY2Uub3JnLjA="
 
 ENTRYPOINT cd recipes && yarn link recipiece-common && yarn run-dev

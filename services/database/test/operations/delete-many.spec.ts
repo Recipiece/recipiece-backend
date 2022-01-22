@@ -1,27 +1,27 @@
 import expect from 'expect';
 import http from 'http';
-import 'mocha';
+import 'jest';
 import { Db, MongoClient } from 'mongodb';
-import { Environment } from 'recipiece-common';
+import { Environment, EnvironmentConstants } from 'recipiece-common';
 import supertest from 'supertest';
 import { databaseApp } from '../../src/app';
-import { initDb } from '../db-helper';
 
-describe('Delete Many Operation', function () {
-  this.timeout(10000);
+describe('Delete Many Operation', () => {
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
   let connection: MongoClient;
   let database: Db;
   const collectionName = 'test-collection';
 
-  before(async () => {
-    ({ connection, database } = await initDb());
+  beforeAll(async () => {
+    // @ts-ignore
+    connection = await MongoClient.connect(global.mongoUri);
+    database = connection.db(EnvironmentConstants.variables.dbName);
     server = http.createServer(databaseApp);
     superapp = supertest(server);
   });
 
-  after(() => {
+  afterAll(() => {
     if (!!connection) {
       connection.close();
     }
@@ -30,9 +30,15 @@ describe('Delete Many Operation', function () {
     }
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
     try {
-      const collection = database.collection(collectionName);
+      await database.createCollection(collectionName);
+    } catch {}
+  });
+
+  afterEach(async () => {
+    const collection = database.collection(collectionName);
+    try {
       await collection.drop();
     } catch {}
   });
@@ -44,7 +50,7 @@ describe('Delete Many Operation', function () {
       .send({});
     expect(deletedResponse.status).toEqual(400);
   });
-  
+
   it('should delete multiple items based on a query', async () => {
     const collection = database.collection(collectionName);
     const values = [];

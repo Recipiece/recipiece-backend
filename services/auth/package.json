@@ -4,10 +4,9 @@
   "description": "authentication and authorization for recipiece",
   "main": "dist/app.js",
   "scripts": {
-    "test": "jest test/**/*.spec.ts",
+    "test": "jest --forceExit",
     "clean": "rm -rf dist",
-    "build": "tsc --build",
-    "build-prod": "tsc -p tsconfig.prod.json",
+    "build": "tsc -p tsconfig.prod.json",
     "run-dev": "node ./nodemon-runner.js"
   },
   "license": "MIT",
