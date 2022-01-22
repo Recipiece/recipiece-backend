@@ -3,11 +3,12 @@ FROM node:alpine
 ENV RCP_ENV_NAME docker
 
 WORKDIR /rcp-auth
+COPY auth auth/
 COPY node-common node-common/
 COPY environment environment/
-COPY tsconfig.prod.json .
+COPY tsconfig.json .
 
 RUN npm i -g typescript ts-node
-RUN cd common && yarn build && yarn link
+RUN cd node-common && yarn build && yarn link
 
 ENTRYPOINT cd auth && yarn link recipiece-common && yarn run-dev
