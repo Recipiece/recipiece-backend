@@ -1,10 +1,10 @@
-import { describe } from 'mocha';
-import { encrypt } from '../src/encrypt/encrypt';
-import { decrypt } from '../src/encrypt/decrypt';
-import { encryptPassword } from '../src/encrypt/encrypt-password';
-import { comparePasswords } from '../src/encrypt/compare-passwords';
-import expect from 'expect';
 import { randomBytes } from 'crypto';
+import expect from 'expect';
+import 'jest';
+import { comparePasswords } from '../src/encrypt/compare-passwords';
+import { decrypt } from '../src/encrypt/decrypt';
+import { encrypt } from '../src/encrypt/encrypt';
+import { encryptPassword } from '../src/encrypt/encrypt-password';
 
 describe('Encryption', () => {
   it('Should be able to encrypt values', () => {

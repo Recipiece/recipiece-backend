@@ -1,17 +1,16 @@
 import expect from 'expect';
 import http from 'http';
-import { describe } from 'mocha';
+import 'jest';
 import nock from 'nock';
 import { DatabaseConstants, Environment, IUser } from 'recipiece-common';
 import supertest from 'supertest';
 import { authApp } from '../src/app';
 
-describe('Staged Users', function () {
-  this.timeout(10000);
+describe('Staged Users', () => {
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
 
-  before(() => {
+  beforeAll(() => {
     server = http.createServer(authApp);
     superapp = supertest(server);
   });
