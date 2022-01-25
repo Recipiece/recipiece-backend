@@ -15,7 +15,8 @@ export type AuthenticationFetcher = (token: string, requiredPermissions: string[
 
 export async function defaultAuthFetcher(token: string, requiredPermissions: string[]): Promise<IUser> {
   return await authRequest({
-    url: '/validate-token',
+    url: '/sessions/validate-token',
+    method: 'POST',
     data: {
       token: token,
       permissions: requiredPermissions,
@@ -27,17 +28,18 @@ export function rcpAuthMiddleware(permissions?: string[], authFetcher?: Authenti
   return async (req: Express.Request, _: Express.Response, next: Express.NextFunction) => {
     const authHeader = req.headers['authorization'];
     if (nou(authHeader)) {
-      throw new UnauthorizedError();
-    }
-    const rawToken = authHeader.replace('Bearer', '').trim();
-    const fetcher: AuthenticationFetcher = authFetcher ?? defaultAuthFetcher;
-    try {
-      const user = await fetcher(rawToken, permissions || []);
-      req.user = user;
-      req.token = rawToken;
-      next();
-    } catch (e) {
-      throw new UnauthorizedError();
+      next(new UnauthorizedError());
+    } else {
+      const rawToken = authHeader.replace('Bearer', '').trim();
+      const fetcher: AuthenticationFetcher = authFetcher ?? defaultAuthFetcher;
+      try {
+        const user = await fetcher(rawToken, permissions || []);
+        req.user = user;
+        req.token = rawToken;
+        next();
+      } catch (e) {
+        next(new UnauthorizedError());
+      }
     }
   };
 }

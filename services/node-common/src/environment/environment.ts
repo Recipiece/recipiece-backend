@@ -74,6 +74,10 @@ export class Environment {
   static get AUTH_SERVICE_NAME(): string {
     return process.env[EnvironmentConstants.variables.authServiceName];
   }
+  static get AUTH_SERVICE_URI(): string {
+    return `http://${Environment.AUTH_SERVICE_NAME}:${Environment.AUTH_SERIVCE_PORT}`;
+  }
+
   static get RECIPE_SERIVCE_PORT(): number {
     return Number.parseInt(process.env[EnvironmentConstants.variables.recipeServicePort]);
   }
@@ -96,6 +100,7 @@ export class Environment {
   static get MEMCACHE_SERVICE_NAME(): string {
     return process.env[EnvironmentConstants.variables.memcacheServiceName];
   }
+
   static get MEMCACHE_SERVICE_URI(): string {
     return `http://${Environment.MEMCACHE_SERVICE_NAME}:${Environment.MEMCACHE_SERIVCE_PORT}`;
   }

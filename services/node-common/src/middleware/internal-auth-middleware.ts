@@ -6,7 +6,7 @@ export function rcpInternalAuthMiddleware(req: Express.Request, res: Express.Res
   const expectedToken = Environment.INTERNAL_USER_TOKEN;
   const authHeader = req.headers['authorization'];
   if (authHeader.replace('Bearer', '').trim() !== expectedToken) {
-    throw new ForbiddenError();
+    next(new ForbiddenError());
   } else {
     next();
   }
