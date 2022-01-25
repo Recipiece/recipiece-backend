@@ -1,8 +1,9 @@
+import { randomUUID } from 'crypto';
 import expect from 'expect';
 import http from 'http';
 import 'jest';
 import nock from 'nock';
-import { DatabaseConstants, Environment, IUser } from 'recipiece-common';
+import { DatabaseConstants, Environment, IStagedUser, IUser } from 'recipiece-common';
 import supertest from 'supertest';
 import { authApp } from '../src/app';
 
@@ -20,20 +21,23 @@ describe('Staged Users', () => {
       const email = 'test@asdf.qwer';
       const password = 'asdfqwer';
 
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+      nock(Environment.DB_SERVICE_URI)
         .post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`)
-        .reply(201, {
-          email: email,
-          password: password,
-          id: '1',
+        .reply(201, (_, requestBody) => {
+          return {
+            data: {
+              ...(requestBody as any).data,
+              _id: randomUUID(),
+            },
+          };
         });
 
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-        .post(`/${DatabaseConstants.collections.users}/find`)
-        .reply(200, {
-          data: [],
-          more: false,
-        });
+      nock(Environment.DB_SERVICE_URI).post(`/${DatabaseConstants.collections.users}/find`).reply(200, {
+        data: [],
+        more: false,
+      });
+
+      nock(Environment.EMAIL_SERVICE_URI).post('/send/signup').reply(200);
 
       const response = await superapp
         .post('/staged-users/')
@@ -48,7 +52,7 @@ describe('Staged Users', () => {
       const email = 'test@asdf.qwer';
       const password = 'asdfqwer';
 
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
+      nock(Environment.DB_SERVICE_URI)
         .post(`/${DatabaseConstants.collections.users}/find`)
         .reply(200, {
           data: [
@@ -69,16 +73,12 @@ describe('Staged Users', () => {
     it('should not allow an existing staged username to be staged', async () => {
       const email = 'test@asdf.qwer';
       const password = 'asdfqwer';
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-        .post(`/${DatabaseConstants.collections.users}/find`)
-        .reply(200, {
-          data: [],
-          more: false,
-        });
+      nock(Environment.DB_SERVICE_URI).post(`/${DatabaseConstants.collections.users}/find`).reply(200, {
+        data: [],
+        more: false,
+      });
 
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-        .post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`)
-        .reply(409, {});
+      nock(Environment.DB_SERVICE_URI).post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`).reply(409, {});
 
       const response = await superapp
         .post('/staged-users/')
@@ -92,38 +92,42 @@ describe('Staged Users', () => {
     it('should allow verification with a valid token', async () => {
       const email = 'test@asdf.qwer';
       const password = 'asdfqwer';
+      const salt = 'nonsensesalt';
+      const nonce = 'nonsensenonce';
+      const token = randomUUID();
 
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-        .post(`/${DatabaseConstants.collections.stagedUsers}/insert-one`)
+      nock(Environment.DB_SERVICE_URI)
+        .post(`/${DatabaseConstants.collections.stagedUsers}/find`)
+        .reply(200, {
+          data: <IStagedUser[]>[
+            {
+              email: email,
+              password: password,
+              salt: salt,
+              nonce: nonce,
+              token: token,
+            },
+          ],
+        });
+
+      nock(Environment.DB_SERVICE_URI)
+        .post(`/${DatabaseConstants.collections.users}/insert-one`)
         .reply(201, (_, requestBody) => {
           return {
-            ...JSON.parse(requestBody.toString()),
-            _id: '1110',
+            data: {
+              ...(requestBody as any).data,
+              _id: randomUUID(),
+            },
           };
         });
 
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-        .post(`/${DatabaseConstants.collections.users}/find`)
-        .reply(200, {
-          data: [],
-          more: false,
-        });
-
-      const response = await superapp
-        .post('/staged-users/')
-        .set('Content-Type', 'application/json')
-        .send({ username: email, password: password });
-      expect(response.status).toEqual(201);
-
-      const { token } = response.body;
-
-      nock(`http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`)
-        .post(`/${DatabaseConstants.collections.users}/insert-one`)
-        .reply(201, (_, originalRequest) => {
+      nock(Environment.DB_SERVICE_URI)
+        .post(`/${DatabaseConstants.collections.userCounts}/insert-one`)
+        .reply(201, (_, requestBody) => {
           return {
             data: {
-              ...JSON.parse(originalRequest.toString()),
-              _id: '1111',
+              ...(requestBody as any).data,
+              _id: randomUUID(),
             },
           };
         });
@@ -132,9 +136,7 @@ describe('Staged Users', () => {
         .post('/staged-users/confirm-account')
         .set('Content-Type', 'application/json')
         .send({ token: token });
-      expect(confirmResponse.status).toEqual(201);
+      expect(confirmResponse.status).toEqual(204);
     });
-
-    it('should not allow verification with an invalid token', async () => {});
   });
 });

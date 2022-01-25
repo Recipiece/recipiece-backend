@@ -1,3 +1,4 @@
+import * as E from 'express';
 import { ForbiddenError, IUser, NotFoundError, Session, Utils } from 'recipiece-common';
 import { comparePasswords } from '../../encrypt/compare-passwords';
 import { getUserByUsername } from './get-by-username';
@@ -7,8 +8,10 @@ export interface LoggedInBundle {
   user: Partial<IUser>;
 }
 
-export async function loginUser(username: string, password: string): Promise<LoggedInBundle> {
+export async function loginUser(req: E.Request, res: E.Response, next: E.NextFunction) {
+  const { username, password } = req.body;
   const userLookup = await getUserByUsername(username);
+
   if (!Utils.nou(userLookup)) {
     const expectedPassword = userLookup.password;
     const expectedSalt = userLookup.salt;
@@ -18,14 +21,14 @@ export async function loginUser(username: string, password: string): Promise<Log
         owner: userLookup._id,
       });
       await session.save();
-      return {
+      res.status(200).send({
         token: session.serialize(),
         user: userLookup.asModel(),
-      };
+      });
     } else {
-      throw new ForbiddenError();
+      next(new ForbiddenError());
     }
   } else {
-    throw new NotFoundError(username);
+    next(new NotFoundError(username));
   }
 }

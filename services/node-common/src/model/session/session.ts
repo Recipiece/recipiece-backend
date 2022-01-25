@@ -6,7 +6,7 @@ export class Session extends DatabaseModel<ISession> implements ISession {
   owner: string;
 
   constructor(model?: Partial<ISession>) {
-    super(DatabaseConstants.collections.sessions);
+    super(DatabaseConstants.collections.sessions, (d) => new Session(d), model);
     this.owner = model?.owner || '';
   }
 

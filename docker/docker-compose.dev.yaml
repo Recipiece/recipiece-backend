@@ -17,6 +17,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: recipiece
       MONGO_INITDB_ROOT_PASSWORD: test1234
       MONGO_INITDB_DATABASE: recipiece
+    command: --quiet
     ports:
       - 27017:27017
   rcp-database:

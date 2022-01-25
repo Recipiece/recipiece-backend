@@ -10,7 +10,7 @@ export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUse
   token: string;
 
   constructor(model?: Partial<IStagedUser>) {
-    super(DatabaseConstants.collections.stagedUsers, model);
+    super(DatabaseConstants.collections.stagedUsers, (d) => new StagedUser(d), model);
     this.email = model?.email || '';
     this.password = model?.password || '';
     this.salt = model?.salt || '';

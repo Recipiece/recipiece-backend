@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { loginUser } from '../api/user/login-user';
+import { rcpAuthMiddleware } from 'recipiece-common';
+import { loginUser, logoutUser } from '../api/user';
 
-const userRouter = Router();
+const router = Router();
 
-userRouter.post('/login', async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+router.post('/login', loginUser);
+router.post('/logout', rcpAuthMiddleware(), logoutUser);
 
-  const loginBundle = await loginUser(username, password);
-  res.status(200).send(loginBundle);
-});
+export const userRouter = router;

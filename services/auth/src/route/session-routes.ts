@@ -1,16 +1,9 @@
 import { Router } from 'express';
-import { ForbiddenError, Session } from 'recipiece-common';
-import { getUserById } from '../api/user/get-by-id';
+import { rcpInternalAuthMiddleware } from 'recipiece-common';
+import { validateToken } from '../api/session';
 
-const sessionRoute = Router();
+const router = Router();
 
-sessionRoute.post('/validate-token', async (req, res, next) => {
-  const token = req.body.token;
-  try {
-    const session = Session.deserialize(token);
-    const user = await getUserById(session.owner);
-    res.status(200).send(user.asModel());
-  } catch {
-    next(new ForbiddenError());
-  }
-});
+router.post('/validate-token', rcpInternalAuthMiddleware, validateToken);
+
+export const sessionRouter = router;

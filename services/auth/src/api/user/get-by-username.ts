@@ -4,7 +4,6 @@ export async function getUserByUsername(username: string): Promise<User | undefi
   const dbEntity = await DbI.queryEntity(DatabaseConstants.collections.users, {
     email: username,
   });
-  console.log(dbEntity);
   if (dbEntity.data.length > 0) {
     return new User(dbEntity.data[0]);
   } else {

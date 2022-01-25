@@ -1,7 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import { rcpErrorMiddleware, rcpLoggerMiddleware } from 'recipiece-common';
-import { stagedUserRouter } from './route/staged-user-routes';
+import { sessionRouter, stagedUserRouter, userRouter } from './route';
 
 const app = express();
 app.use(cors());
@@ -13,6 +13,8 @@ app.get('/health-check', (_, res) => {
 });
 
 app.use('/staged-users', stagedUserRouter);
+app.use('/users', userRouter);
+app.use('/sessions', sessionRouter);
 
 app.use(rcpErrorMiddleware);
 

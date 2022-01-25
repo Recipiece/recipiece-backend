@@ -6,13 +6,18 @@ export abstract class DatabaseModel<T extends IBaseModel> implements IBaseModel 
   _id: string | undefined;
   created: number;
 
-  protected constructor(public collection: string, json?: Partial<T>) {
+  protected constructor(
+    public collection: string,
+    private factory: (data: T) => any,
+    json?: Partial<T>
+  ) {
     this._id = json?._id;
     this.created = json?.created ?? utcNow();
   }
 
-  public async save(): Promise<T> {
-    return await saveEntity(this);
+  public async save<K extends DatabaseModel<T>>(): Promise<K> {
+    const saved = await saveEntity<T, any>(this);
+    return this.factory(saved as T);
   }
 
   public async delete() {

@@ -9,7 +9,11 @@ export class UserCounts extends DatabaseModel<IUserCounts> implements IUserCount
   owner: string;
 
   constructor(model?: Partial<IUserCounts>) {
-    super(DatabaseConstants.collections.userCounts, model);
+    super(
+      DatabaseConstants.collections.userCounts, 
+      (d: IUserCounts) => new UserCounts(d),
+      model
+    );
     this.recipes = model?.recipes ?? 0;
     this.recipeBooks = model?.recipeBooks ?? 0;
     this.shoppingLists = model?.shoppingLists ?? 0;

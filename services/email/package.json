@@ -4,7 +4,7 @@
   "description": "email services for recipiece",
   "main": "index.js",
   "author": "Steven Rosendahl",
-  "license": "MPL 2.0",
+  "license": "MPL-2.0",
   "scripts": {
     "test": "jest --forceExit",
     "clean": "rm -rf dist",

@@ -13,7 +13,7 @@ export class User extends DatabaseModel<IUser> implements IUser {
   subscriptionId?: string;
 
   constructor(model?: Partial<IUser>) {
-    super(DatabaseConstants.collections.users);
+    super(DatabaseConstants.collections.users, (d) => new User(d), model);
     this.email = model?.email || '';
     this.preferences = model?.preferences || {};
     this.permissions = model?.permissions || [];

@@ -12,7 +12,7 @@ export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
   owner: string;
 
   constructor(model?: Partial<IRecipe>) {
-    super(DatabaseConstants.collections.recipes)
+    super(DatabaseConstants.collections.recipes, (d) => new Recipe(d), model);
     this.name = model?.name || '';
     this.description = model?.description || '';
     this.private = model?.private || false;

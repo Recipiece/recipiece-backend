@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import { BadRequestError, ConflictError, StagedUser, Utils } from 'recipiece-common';
+import * as E from 'express';
+import { BadRequestError, ConflictError, EmailI, StagedUser, Utils } from 'recipiece-common';
 import { encryptPassword } from '../../encrypt/encrypt-password';
 import { getUserByUsername } from '../user/get-by-username';
-import * as E from 'express';
 
 export async function stageUser(req: E.Request, res: E.Response, next: E.NextFunction) {
   const { username, password } = req.body;
@@ -30,7 +30,8 @@ export async function stageUser(req: E.Request, res: E.Response, next: E.NextFun
 
   // save the staged user
   try {
-    await stagedUser.save();
+    stagedUser = await stagedUser.save();
+    await EmailI.sendCreateAccountEmail(username, stagedUser.token);
     res.status(201).send(stagedUser.asModel());
   } catch (keyErr) {
     next(new ConflictError());

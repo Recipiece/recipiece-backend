@@ -1,11 +1,11 @@
 import * as E from 'express';
 import mailjet from 'node-mailjet';
 import { Environment } from 'recipiece-common';
+import { IEmail } from '../emails/email.i';
 
-export async function sendEmail(req: E.Request, res: E.Response, next: E.NextFunction) {
-  const { to, subject, content } = req.body;
-  const client = mailjet.connect(Environment.MAILJET_API_KEY, Environment.MAILJET_SECRET_KEY);
-  try {
+export async function sendEmail(email: IEmail) {
+  if (Environment.IS_PRODUCTION) {
+    const client = mailjet.connect(Environment.MAILJET_API_KEY, Environment.MAILJET_SECRET_KEY);
     await client.post('send', { version: 'v3.1' }).request({
       Messages: [
         {
@@ -15,16 +15,16 @@ export async function sendEmail(req: E.Request, res: E.Response, next: E.NextFun
           },
           To: [
             {
-              Email: to,
+              Email: email.to,
             },
           ],
-          Subject: subject,
-          TextPart: content,
+          Subject: email.subject,
+          TextPart: email.textContent,
         },
       ],
     });
-    res.status(204).send();
-  } catch (e) {
-    next(e);
+  } else {
+    console.log('Would have sent email');
+    console.log(email);
   }
 }

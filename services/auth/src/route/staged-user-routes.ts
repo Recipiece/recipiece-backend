@@ -2,8 +2,9 @@ import { Router } from 'express';
 import { migrateStagedUser } from '../api/staged-user/migrate-staged-user';
 import { stageUser } from '../api/staged-user/stage-user';
 
-export const stagedUserRouter = Router();
+const router = Router();
 
-stagedUserRouter.post('/', stageUser);
+router.post('/', stageUser);
+router.post('/confirm-account', migrateStagedUser);
 
-stagedUserRouter.post('/confirm-account', migrateStagedUser);
+export const stagedUserRouter = router;
