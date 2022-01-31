@@ -40,15 +40,13 @@ async function convertIngredient(req: AuthRequest): Promise<ConvertedIngredientB
   const desiredUnitName = req.body.to;
 
   // try and find the units from the ingredient and the desired unit
-  const measures = await listRecipieceMeasures();
-
-  const sourceMeasure = findMeasure(measures, ingredient.unit);
+  const sourceMeasure = await findMeasure(ingredient.unit);
 
   if (Utils.nou(sourceMeasure)) {
     throw new UnknownUnitError(ingredient.unit);
   }
 
-  const destMeasure = findMeasure(measures, desiredUnitName);
+  const destMeasure = await findMeasure(desiredUnitName);
 
   if (Utils.nou(destMeasure)) {
     throw new UnknownUnitError(desiredUnitName);
@@ -58,7 +56,7 @@ async function convertIngredient(req: AuthRequest): Promise<ConvertedIngredientB
   if (sourceMeasure.cat !== destMeasure.cat) {
     convertedAmount = await convertDifferentUnitCategories(ingredient, sourceMeasure, destMeasure);
   } else {
-    convertedAmount = convertSameUnitCategories(ingredient, sourceMeasure, destMeasure);
+    convertedAmount = convertSameUnitCategories(ingredient.amount, sourceMeasure, destMeasure);
   }
 
   // try and nicely convert the value back to a fraction, if it ~should~ be one
@@ -78,7 +76,8 @@ async function convertIngredient(req: AuthRequest): Promise<ConvertedIngredientB
   };
 }
 
-function findMeasure(measures: IMeasure[], unitName: string): IMeasure | undefined {
+async function findMeasure(unitName: string): Promise<IMeasure | undefined> {
+  const measures = await listRecipieceMeasures();
   return measures.find((m) => {
     m.abbrs.includes(unitName) || m.name.s.includes(unitName) || m.name.p.includes(unitName);
   });
@@ -107,13 +106,25 @@ async function convertDifferentUnitCategories(
   if (commonIngRequest.data.length === 0) {
     throw new RecipieceError();
   }
+
+  let amount: number;
+
   const commonIngredient = commonIngRequest.data[0];
+  const normalCat = commonIngredient[source.cat];
+  const oppositeCat = commonIngredient[source.cat === 'v' ? 'w' : 'v'];
   // convert the recipe ingredient over to the common ingredient's matching category
-  const destCommon = commonIngredient[source.cat].unit;
+  const destCommon = await findMeasure(commonIngredient[source.cat].unit);
+  amount = convertSameUnitCategories(ingredient.amount, source, destCommon);
+  // pass the amount over to the other category in the common ingredient
+  amount = (amount * oppositeCat.amount) / (normalCat.amount);
+  // take it from the common src, to the desired dest
+  const srcCommon = await findMeasure(oppositeCat.unit);
+  amount = convertSameUnitCategories(amount, srcCommon, dest);
+  return amount;
 }
 
-function convertSameUnitCategories(ingredient: IRecipeIngredient, source: IMeasure, dest: IMeasure): number {
+function convertSameUnitCategories(amount: string | number, source: IMeasure, dest: IMeasure): number {
   // easy peasy, just do the math
-  const floatyAmount = new Fraction(ingredient.amount).valueOf();
+  const floatyAmount = new Fraction(amount).valueOf();
   return (floatyAmount * source.factor) / dest.factor;
 }

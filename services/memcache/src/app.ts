@@ -13,6 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use(rcpInternalAuthMiddleware);
+app.use(rcpLoggerMiddleware);
+
 app.get('/:key', async (req, res) => {
   const key = req.params.key;
   const response = await memget(key);
@@ -45,8 +48,6 @@ app.delete('/:key', async (req, res) => {
   res.status(204).send();
 });
 
-app.use(rcpLoggerMiddleware);
 app.use(rcpErrorMiddleware);
-app.use(rcpInternalAuthMiddleware);
 
 export const memcacheApp = app;

@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { AuthRequest, DatabaseConstants, DbI, IMeasure } from 'recipiece-common';
+import { AuthRequest, DatabaseConstants, DbI, IMeasure, MemI } from 'recipiece-common';
 
 export async function listMeasures(_: AuthRequest, res: Response, next: NextFunction) {
   try {
@@ -12,6 +12,24 @@ export async function listMeasures(_: AuthRequest, res: Response, next: NextFunc
 }
 
 export async function listRecipieceMeasures(): Promise<IMeasure[]> {
-  const measures = await DbI.queryEntity<IMeasure>(DatabaseConstants.collections.measures, {});
-  return measures.data;
+  const memKey = 'rcp-measures';
+  const inMemcache = await MemI.memHas(memKey);
+  let measures = [];
+  if (!inMemcache) {
+    let lastRequest: any = {
+      more: true,
+    };
+    do {
+      lastRequest = await DbI.queryEntity<IMeasure>(
+        DatabaseConstants.collections.commonIngredients,
+        {},
+        lastRequest.page
+      );
+      measures.push(lastRequest.data);
+    } while (lastRequest.more);
+    await MemI.memSet(memKey, measures);
+  } else {
+    measures = await MemI.memGet<IMeasure[]>(memKey);
+  }
+  return measures;
 }
