@@ -1,5 +1,5 @@
 import * as E from 'express';
-import { DatabaseConstants, DbI, IStagedUser, IUser, NotFoundError, User, UserCounts, Utils } from 'recipiece-common';
+import { DatabaseConstants, DbI, IStagedUser, NotFoundError, User, Utils } from 'recipiece-common';
 
 export async function migrateStagedUser(req: E.Request, res: E.Response, next: E.NextFunction) {
   const { token } = req.body;
@@ -20,7 +20,5 @@ export async function migrateStagedUser(req: E.Request, res: E.Response, next: E
     permissions: [],
   });
   const createdUser = await user.save();
-  const userCounts = new UserCounts({ owner: createdUser._id });
-  await userCounts.save();
   res.status(204).send();
 }

@@ -9,13 +9,17 @@
     "run-dev": "node ./nodemon-runner.js"
   },
   "author": "Steven Rosendahl",
-  "license": "MPL 2.0",
+  "license": "MPL-2.0",
   "dependencies": {
+    "@types/fuzzyset.js": "^0.0.2",
     "express": "^4.17.2",
+    "fraction.js": "^4.1.2",
+    "fuzzyset.js": "^1.0.7",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.6.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "nodemon": "^2.0.15"
   }

@@ -40,6 +40,7 @@ db.Measures.insertMany([
         s: 'cup',
         p: 'cups'
     },
+    preferFractions: true,
     factor: 236.588
   },
   {
@@ -49,6 +50,7 @@ db.Measures.insertMany([
         s: 'teaspoon',
         p: 'teaspoons'
     },
+    preferFractions: true,
     factor: 4.92892
   },
   {
@@ -58,6 +60,7 @@ db.Measures.insertMany([
         s: 'tablespoon',
         p: 'tablespoons'
     },
+    preferFractions: true,
     factor: 14.7868
   },
   {

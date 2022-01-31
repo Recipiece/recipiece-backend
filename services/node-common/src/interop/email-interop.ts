@@ -50,3 +50,4 @@ export async function sendSharedShoppingListEmail(to: string, listId: string, ow
     method: 'POST',
   });
 }
+

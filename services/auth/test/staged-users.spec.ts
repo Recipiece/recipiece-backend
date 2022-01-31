@@ -121,17 +121,6 @@ describe('Staged Users', () => {
           };
         });
 
-      nock(Environment.DB_SERVICE_URI)
-        .post(`/${DatabaseConstants.collections.userCounts}/insert-one`)
-        .reply(201, (_, requestBody) => {
-          return {
-            data: {
-              ...(requestBody as any).data,
-              _id: randomUUID(),
-            },
-          };
-        });
-
       const confirmResponse = await superapp
         .post('/staged-users/confirm-account')
         .set('Content-Type', 'application/json')

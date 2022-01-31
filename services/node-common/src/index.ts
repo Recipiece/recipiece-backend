@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { IUser } from './model/user/user.i';
 
 let file;
 
@@ -20,10 +21,18 @@ dotenv.config({
   debug: envName === 'docker' || envName === 'local',
 });
 
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: IUser;
+    token?: string;
+  }
+}
+
 export * from './model';
 export * from './error';
 export * from './interop';
 export * from './constants';
 export * from './middleware';
 export * from './environment';
+export * from './types';
 export * as Utils from './utils';

@@ -6,7 +6,6 @@ class Collections {
   static readonly recipeBooks = 'RecipeBooks';
   static readonly shoppingLists = 'ShoppingLists';
   static readonly forgotPasswordTokens = 'ForgotPasswordTokens';
-  static readonly userCounts = 'UserCounts';
   static readonly userPermissions = 'UserPermissions';
   static readonly userTags = 'UserTags';
   static readonly timers = 'Timers';

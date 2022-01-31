@@ -8,16 +8,20 @@ export async function stageUser(req: E.Request, res: E.Response, next: E.NextFun
   const { username, password } = req.body;
   if (Utils.nou(username)) {
     next(new BadRequestError('username', username));
+    return;
   }
-  if (Utils.nou(password)) {
+  else if (Utils.nou(password)) {
     next(new BadRequestError('password', password));
+    return;
   }
 
   // check that the email doesn't exist already on a user
   const existingUser = await getUserByUsername(username);
   if (!Utils.nou(existingUser)) {
     next(new ConflictError());
+    return;
   }
+  
 
   const pwBundle = await encryptPassword(password);
   let stagedUser = new StagedUser({

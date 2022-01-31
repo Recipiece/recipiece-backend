@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import { Utils } from 'index';
 import { Environment } from '../environment';
 import { IBaseModel } from '../model/base-model.i';
 import { DatabaseModel } from '../model/database-model';
@@ -42,15 +43,25 @@ export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K
       },
     });
   }
-  return (response as {data: K}).data;
+  return (response as { data: K }).data;
 }
 
-export async function queryEntity<K extends IBaseModel>(collection: string, query: any): Promise<IPagedResult<K>> {
-  return await dbRequest({
+export async function queryEntity<K extends IBaseModel>(
+  collection: string,
+  query: any,
+  page?: string,
+): Promise<IPagedResult<K>> {
+  const axiosRequest: AxiosRequestConfig = {
     url: `/${collection}/find`,
     method: 'POST',
     data: { query },
-  });
+  };
+
+  if (!Utils.nou(page)) {
+    axiosRequest.params.page = page;
+  }
+
+  return await dbRequest(axiosRequest);
 }
 
 export async function getEntityById<K extends IBaseModel>(collection: string, id: string): Promise<K> {
@@ -63,7 +74,7 @@ export async function getEntityById<K extends IBaseModel>(collection: string, id
       },
     },
   });
-  return (response as {data: K}).data;
+  return (response as { data: K }).data;
 }
 
 export async function deleteEntity<K extends IBaseModel, T extends DatabaseModel<K>>(entity: T): Promise<any> {

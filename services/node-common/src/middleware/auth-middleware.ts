@@ -4,13 +4,6 @@ import { UnauthorizedError } from '../error';
 import { authRequest } from '../interop/auth-interop';
 import { nou } from '../utils';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: IUser;
-    token?: string;
-  }
-}
-
 export type AuthenticationFetcher = (token: string, requiredPermissions: string[]) => Promise<IUser>;
 
 export async function defaultAuthFetcher(token: string, requiredPermissions: string[]): Promise<IUser> {

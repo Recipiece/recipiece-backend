@@ -1,11 +1,10 @@
 import { ObjectId } from 'mongodb';
-import { Request } from 'express';
 
 export function restoreObjectId(object: any): any {
   const copy = { ...object };
   for (let [key, value] of Object.entries(copy)) {
     if (key === '_id') {
-      copy[key] = new ObjectId(value as string);
+      copy[key] = _convertObjectIdField(value);
     } else if (Array.isArray(value)) {
       copy[key] = value.map((v) => restoreObjectId(v));
     } else if (value instanceof RegExp) {
@@ -17,6 +16,20 @@ export function restoreObjectId(object: any): any {
     }
   }
   return copy;
+}
+
+function _convertObjectIdField(valueOfIdKey: any) {
+  if(typeof valueOfIdKey === 'string') {
+    return new ObjectId(valueOfIdKey);
+  } else {
+    // it's an object with nested properties
+    // support these as needed
+    const valCopy = {...valueOfIdKey};
+    if(valCopy.$in)  {
+      valCopy.$in = valCopy.$in.map((inVal: string) => new ObjectId(inVal));
+    }
+    return valCopy;
+  }
 }
 
 export function stripObjectId(object: any): any {
