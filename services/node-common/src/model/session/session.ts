@@ -3,18 +3,20 @@ import { DatabaseModel } from '../database-model';
 import { ISession } from './session.i';
 
 export class Session extends DatabaseModel<ISession> implements ISession {
-  owner: string;
-
-  constructor(model?: Partial<ISession>) {
-    super(DatabaseConstants.collections.sessions, (d) => new Session(d), model);
-    this.owner = model?.owner || '';
+  public get owner(): string {
+    return this.model.owner;
+  }
+  public set owner(value: string) {
+    this.model.owner = value;
   }
 
-  public asModel(): ISession {
+  constructor(model: Partial<ISession>) {
+    super(DatabaseConstants.collections.sessions, (d) => new Session(d), model);
+  }
+
+  public asJson(): ISession {
     return {
-      owner: this.owner,
-      _id: this._id,
-      created: this.created,
+      ...this.model,
     };
   }
 

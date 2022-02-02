@@ -5,4 +5,8 @@ process.env['RCP_ENV_NAME'] = 'test';
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  globalSetup: '../database/test/db-setup.js',
+  globals: {
+    mongoUri: 'mongodb://127.0.0.1:4444',
+  }
 };

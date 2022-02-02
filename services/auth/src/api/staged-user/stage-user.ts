@@ -2,30 +2,44 @@ import { randomUUID } from 'crypto';
 import * as E from 'express';
 import { BadRequestError, ConflictError, EmailI, StagedUser, Utils } from 'recipiece-common';
 import { encryptPassword } from '../../encrypt/encrypt-password';
-import { getUserByUsername } from '../user/get-by-username';
+import { getUserByEmail, getUserByUsername } from '../user/get-user';
 
 export async function stageUser(req: E.Request, res: E.Response, next: E.NextFunction) {
-  const { username, password } = req.body;
-  if (Utils.nou(username)) {
-    next(new BadRequestError('username', username));
-    return;
+  try {
+    const {username, email, password} = req.body;
+    const staged = await stage(username, email, password);
+    res.status(201).send(staged.asJson());
+  } catch (e) {
+    next(e);
   }
-  else if (Utils.nou(password)) {
-    next(new BadRequestError('password', password));
-    return;
+}
+
+async function stage(username: string, email: string, password: string): Promise<StagedUser> {
+  if (Utils.nou(username)) {
+    throw new BadRequestError('username', username);
+  }
+  if (Utils.nou(email)) {
+    throw new BadRequestError('email', username);
+  }
+  if (Utils.nou(password)) {
+    throw new BadRequestError('password', password);
   }
 
   // check that the email doesn't exist already on a user
-  const existingUser = await getUserByUsername(username);
-  if (!Utils.nou(existingUser)) {
-    next(new ConflictError());
-    return;
+  const fromUsername = await getUserByUsername(username);
+  if (!Utils.nou(fromUsername)) {
+    throw new ConflictError();
   }
-  
+
+  const fromEmail = await getUserByEmail(email);
+  if (!Utils.nou(fromEmail)) {
+    throw new ConflictError();
+  }
 
   const pwBundle = await encryptPassword(password);
   let stagedUser = new StagedUser({
-    email: username,
+    email: email,
+    username: username,
     password: pwBundle.password,
     nonce: pwBundle.nonce,
     salt: pwBundle.salt,
@@ -36,8 +50,8 @@ export async function stageUser(req: E.Request, res: E.Response, next: E.NextFun
   try {
     stagedUser = await stagedUser.save();
     await EmailI.sendCreateAccountEmail(username, stagedUser.token);
-    res.status(201).send(stagedUser.asModel());
+    return stagedUser;
   } catch (keyErr) {
-    next(new ConflictError());
+    throw new ConflictError();
   }
 }

@@ -25,7 +25,7 @@ export async function listRecipieceMeasures(): Promise<IMeasure[]> {
         {},
         lastRequest.page
       );
-      measures.push(lastRequest.data);
+      measures.push(...lastRequest.data);
     } while (lastRequest.more);
     await MemI.memSet(memKey, measures);
   } else {

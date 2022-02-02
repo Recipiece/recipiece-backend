@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { Utils } from 'index';
+import { nou } from '../utils';
 import { Environment } from '../environment';
 import { IBaseModel } from '../model/base-model.i';
 import { DatabaseModel } from '../model/database-model';
@@ -28,7 +28,7 @@ export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K
       url: url,
       method: 'POST',
       data: {
-        data: entity.asModel(),
+        data: entity.model,
       },
     });
   } else {
@@ -36,7 +36,7 @@ export async function saveEntity<K extends IBaseModel, T extends DatabaseModel<K
       url: url,
       method: 'POST',
       data: {
-        data: entity.asModel(),
+        data: entity.model,
         query: {
           _id: entity._id,
         },
@@ -57,7 +57,7 @@ export async function queryEntity<K extends IBaseModel>(
     data: { query },
   };
 
-  if (!Utils.nou(page)) {
+  if (!nou(page)) {
     axiosRequest.params.page = page;
   }
 

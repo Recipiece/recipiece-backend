@@ -17,7 +17,7 @@ export async function listRecipieceIngredients(): Promise<ICommonIngredient[]> {
         {},
         lastRequest.page
       );
-      commonIngredients.push(lastRequest.data);
+      commonIngredients.push(...lastRequest.data);
     } while (lastRequest.more);
     await MemI.memSet(memKey, commonIngredients);
   } else {
@@ -40,7 +40,7 @@ export async function listRecipieceIngredientNames(): Promise<ICommonIngredientN
         {},
         lastRequest.page
       );
-      commonIngredientNames.push(lastRequest.data);
+      commonIngredientNames.push(...lastRequest.data);
     } while (lastRequest.more);
     await MemI.memSet(memKey, commonIngredientNames);
   } else {

@@ -9,7 +9,6 @@ db.createCollection('UserSessions');
 db.createCollection('StagedUsers');
 db.createCollection('ForgotPasswordTokens');
 db.createCollection('ShoppingLists');
-db.createCollection('UserCounts');
 db.createCollection('UserPermissions');
 db.createCollection('UserTags');
 db.createCollection('Timers');
@@ -23,11 +22,9 @@ db.UserTags.createIndex({'owner': 1});
 // user permissions indices
 db.UserPermissions.createIndex({'owner': 1}, {unique: true});
 
-// user count indices
-db.UserCounts.createIndex({'owner': 1}, {unique: true});
-
 // user indices
 db.Users.createIndex({'email': 1}, {unique: true});
+db.Users.createIndex({'username': 1}, {unique: true});
 
 // recipe indices
 db.Recipes.createIndex({'name': 1});
@@ -41,6 +38,7 @@ db.RecipeBooks.createIndex({'name': 1})
 
 // staged user indices
 db.StagedUsers.createIndex({'email': 1}, {unique: true});
+db.StagedUsers.createIndex({'username': 1}, {unique: true});
 db.StagedUsers.createIndex({'token': 1}, {unique: true});
 
 // forgot password indices

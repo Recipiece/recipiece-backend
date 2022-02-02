@@ -1,7 +1,13 @@
 import * as E from 'express';
-import { ForbiddenError, IUser, NotFoundError, Session, Utils } from 'recipiece-common';
+import {
+  DatabaseConstants,
+  DbI, IUser,
+  NotFoundError,
+  Session,
+  UnauthorizedError,
+  User
+} from 'recipiece-common';
 import { comparePasswords } from '../../encrypt/compare-passwords';
-import { getUserByUsername } from './get-by-username';
 
 export interface LoggedInBundle {
   token: string;
@@ -9,26 +15,39 @@ export interface LoggedInBundle {
 }
 
 export async function loginUser(req: E.Request, res: E.Response, next: E.NextFunction) {
-  const { username, password } = req.body;
-  const userLookup = await getUserByUsername(username);
+  const { name, password } = req.body;
+  try {
+    const bundle = await login(name, password);
+    res.status(200).send(bundle);
+  } catch (e) {
+    next(e);
+  }
+}
 
-  if (!Utils.nou(userLookup)) {
+async function login(name: string, password: string): Promise<LoggedInBundle> {
+  const userQuery = await DbI.queryEntity<IUser>(DatabaseConstants.collections.users, {
+    $or: [{ email: name }, { username: name }],
+  });
+
+  if (userQuery.data.length > 0) {
+    const userLookup = new User(userQuery.data[0]);
     const expectedPassword = userLookup.password;
     const expectedSalt = userLookup.salt;
     const expectedNonce = userLookup.nonce;
-    if (comparePasswords(password, expectedPassword, expectedSalt, expectedNonce)) {
+    const passwordsMatch = await comparePasswords(password, expectedPassword, expectedSalt, expectedNonce);
+    if (passwordsMatch) {
       let session = new Session({
         owner: userLookup._id,
       });
       await session.save();
-      res.status(200).send({
+      return {
         token: session.serialize(),
-        user: userLookup.asModel(),
-      });
+        user: userLookup.asJson(),
+      };
     } else {
-      next(new ForbiddenError());
+      throw new UnauthorizedError();
     }
   } else {
-    next(new NotFoundError(username));
+    throw new NotFoundError(name);
   }
 }

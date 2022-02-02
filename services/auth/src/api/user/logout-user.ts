@@ -1,18 +1,17 @@
-import * as E from 'express';
-import { ForbiddenError, NotFoundError, Session, UnauthorizedError, Utils } from 'recipiece-common';
+import { NextFunction, Response } from 'express';
+import { AuthRequest, IUser, Session } from 'recipiece-common';
 
-export async function logoutUser(req: E.Request, res: E.Response, next: E.NextFunction) {
-  // @ts-ignore
+export async function logoutUser(req: AuthRequest, res: Response, next: NextFunction) {
   const { token, user } = req;
   try {
-    const session = Session.deserialize(token);
-    if (session.owner !== user._id) {
-      next(new UnauthorizedError());
-    } else {
-      await session.delete();
-      res.status(200).send();
-    }
+    await logout(token, user);
+    res.status(204).send();
   } catch (e) {
     next(e);
   }
+}
+
+async function logout(token: string, user: Partial<IUser>) {
+  const session = Session.deserialize(token);
+  await session.delete();
 }

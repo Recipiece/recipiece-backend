@@ -3,36 +3,60 @@ import { DatabaseModel } from '../database-model';
 import { IRecipe, IRecipeAdvancedOptions, IRecipeSection } from './recipe.i';
 
 export class Recipe extends DatabaseModel<IRecipe> implements IRecipe {
-  name: string;
-  description: string;
-  private: boolean;
-  advanced?: IRecipeAdvancedOptions;
-  sections: IRecipeSection[];
-  tags: string[];
-  owner: string;
-
-  constructor(model?: Partial<IRecipe>) {
-    super(DatabaseConstants.collections.recipes, (d) => new Recipe(d), model);
-    this.name = model?.name || '';
-    this.description = model?.description || '';
-    this.private = model?.private || false;
-    this.advanced = model?.advanced;
-    this.sections = model?.sections || [];
-    this.tags = model?.tags || [];
-    this.owner = model?.owner || '';
+  public get name(): string {
+    return this.model.name;
+  }
+  public set name(value: string) {
+    this.model.name = value;
   }
 
-  public asModel(): Partial<IRecipe> {
-    return {
-      _id: this._id,
-      created: this.created,
-      name: this.name,
-      description: this.description,
-      private: this.private,
-      owner: this.owner,
-      advanced: this.advanced,
-      sections: this.sections,
-      tags: this.tags,
-    };
+  public get description(): string {
+    return this.model.description;
+  }
+  public set description(value: string) {
+    this.model.description = value;
+  }
+
+  public get private(): boolean {
+    return this.model.private;
+  }
+  public set private(value: boolean) {
+    this.model.private = value;
+  }
+
+  public get advanced(): IRecipeAdvancedOptions {
+    return this.model.advanced;
+  }
+  public set advanced(value: IRecipeAdvancedOptions) {
+    this.model.advanced = value;
+  }
+
+  public get sections(): IRecipeSection[] {
+    return this.model.sections;
+  }
+  public set sections(value: IRecipeSection[]) {
+    this.model.sections = value;
+  }
+
+  public get tags(): string[] {
+    return this.model.tags;
+  }
+  public set tags(value: string[]) {
+    this.model.tags = value;
+  }
+
+  public get owner(): string {
+    return this.model.owner;
+  }
+  public set owner(value: string) {
+    this.model.owner = value;
+  }
+
+  constructor(model: Partial<IRecipe>) {
+    super(DatabaseConstants.collections.recipes, (d) => new Recipe(d), model);
+  }
+
+  public asJson(): Partial<IRecipe> {
+    return {...this.model};
   }
 }

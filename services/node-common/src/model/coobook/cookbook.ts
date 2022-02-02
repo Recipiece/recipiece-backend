@@ -3,26 +3,41 @@ import { DatabaseModel } from '../database-model';
 import { ICookbook } from './cookbook.i';
 
 export class Cookbook extends DatabaseModel<ICookbook> implements ICookbook {
-  name: string;
-  description: string;
-  recipes: string[];
-  owner: string;
-
-  constructor(model?: Partial<ICookbook>) {
-    super(DatabaseConstants.collections.recipeBooks, (data) => new Cookbook(data as ICookbook), model);
-    this.owner = model?.owner || '';
-    this.name = model?.name || '';
-    this.description = model?.description || '';
-    this.recipes = model?.recipes || [];
+  public get name(): string {
+    return this.model.name;
+  }
+  public set name(value: string) {
+    this.model.name = value;
   }
 
-  public asModel(): Partial<ICookbook> {
+  public get description(): string {
+    return this.model.description;
+  }
+  public set description(value: string) {
+    this.model.description = value;
+  }
+
+  public get recipes(): string[] {
+    return this.model.recipes;
+  }
+  public set recipes(value: string[]) {
+    this.model.recipes = value;
+  }
+
+  public get owner(): string {
+    return this.model.owner;
+  }
+  public set owner(value: string) {
+    this.model.owner = value;
+  }
+
+  constructor(model: Partial<ICookbook>) {
+    super(DatabaseConstants.collections.recipeBooks, (d) => new Cookbook(d), model);
+  }
+
+  public asJson(): Partial<ICookbook> {
     return {
-      _id: this._id,
-      owner: this.owner,
-      description: this.description,
-      name: this.name,
-      recipes: this.recipes,
+      ...this.model,
     };
   }
 }

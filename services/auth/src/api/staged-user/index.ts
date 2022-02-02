@@ -1,2 +1,2 @@
-export * from './migrate-staged-user';
-export * from './stage-user';
+export { migrateStagedUser } from './migrate-staged-user';
+export { stageUser } from './stage-user';
