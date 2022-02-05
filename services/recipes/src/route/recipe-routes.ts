@@ -1,8 +1,10 @@
 import { createRecipe, deleteRecipe, getRecipe, listRecipesForUser, updateRecipe } from '../api/recipe';
 import { Router } from 'express';
-import { rcpAuthMiddleware } from 'recipiece-common';
+import { dbConnectMiddleware, rcpAuthMiddleware } from 'recipiece-common';
 
 const router = Router();
+
+router.use(dbConnectMiddleware);
 
 router.post('/', rcpAuthMiddleware(), createRecipe);
 router.put('/:recipeId', rcpAuthMiddleware(), updateRecipe);

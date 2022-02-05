@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { AuthRequest, DatabaseConstants, DbI, ICommonIngredient, ICommonIngredientName, MemI } from 'recipiece-common';
+import { AuthRequest, DatabaseConstants, ICommonIngredient, ICommonIngredientName, MemI } from 'recipiece-common';
 
 export async function listCommonIngredients(req: AuthRequest, res: Response, next: NextFunction) {}
 
@@ -12,11 +12,11 @@ export async function listRecipieceIngredients(): Promise<ICommonIngredient[]> {
       more: true,
     };
     do {
-      lastRequest = await DbI.queryEntity<ICommonIngredient>(
-        DatabaseConstants.collections.commonIngredients,
-        {},
-        lastRequest.page
-      );
+      // lastRequest = await DbI.queryEntity<ICommonIngredient>(
+      //   DatabaseConstants.collections.commonIngredients,
+      //   {},
+      //   lastRequest.page
+      // );
       commonIngredients.push(...lastRequest.data);
     } while (lastRequest.more);
     await MemI.memSet(memKey, commonIngredients);
@@ -35,11 +35,11 @@ export async function listRecipieceIngredientNames(): Promise<ICommonIngredientN
       more: true,
     };
     do {
-      lastRequest = await DbI.queryEntity<ICommonIngredientName>(
-        DatabaseConstants.collections.commonIngredientNames,
-        {},
-        lastRequest.page
-      );
+      // lastRequest = await DbI.queryEntity<ICommonIngredientName>(
+      //   DatabaseConstants.collections.commonIngredientNames,
+      //   {},
+      //   lastRequest.page
+      // );
       commonIngredientNames.push(...lastRequest.data);
     } while (lastRequest.more);
     await MemI.memSet(memKey, commonIngredientNames);

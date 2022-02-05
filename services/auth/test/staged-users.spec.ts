@@ -9,7 +9,6 @@ import supertest from 'supertest';
 import { authApp } from '../src/app';
 
 describe('Staged Users', () => {
-  jest.setTimeout(20000);
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
 

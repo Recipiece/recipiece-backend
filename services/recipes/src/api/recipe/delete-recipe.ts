@@ -1,20 +1,23 @@
 import * as E from 'express';
-import { AuthRequest, Recipe, UnauthorizedError } from 'recipiece-common';
-import { fetchById } from './get-recipe';
+import { AuthRequest, NotFoundError, RecipeModel, UnauthorizedError, Utils } from 'recipiece-common';
 
 export async function deleteRecipe(req: AuthRequest, res: E.Response, next: E.NextFunction) {
   const recipeId = req.params.recipeId;
-  let recipe: Recipe;
   try {
-    recipe = new Recipe(await fetchById(recipeId));
+    await runDelete(recipeId, req.user.id);
+    res.status(204).send();
   } catch (e) {
     next(e);
-    return;
   }
-  if (recipe.owner !== req.user._id) {
-    next(new UnauthorizedError());
-  } else {
-    await recipe.delete();
-    res.status(204).send();
+}
+
+async function runDelete(recipeId: string, userId: string) {
+  const recipe = await RecipeModel.findById(recipeId);
+  if (Utils.nou(recipe)) {
+    throw new NotFoundError(recipeId);
   }
+  if (recipe.owner !== userId) {
+    throw new UnauthorizedError();
+  }
+  await recipe.delete();
 }

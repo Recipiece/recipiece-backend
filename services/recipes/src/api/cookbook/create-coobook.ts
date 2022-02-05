@@ -1,13 +1,13 @@
 import * as E from 'express';
-import { AuthRequest, Cookbook } from 'recipiece-common';
+import { AuthRequest, CookbookModel } from 'recipiece-common';
 
 export async function createCookbook(req: AuthRequest, res: E.Response, next: E.NextFunction) {
   try {
-    const cookbook = await new Cookbook({
+    const cookbook = await new CookbookModel({
       ...req.body,
-      owner: req.user._id,
+      owner: req.user.id,
     }).save();
-    res.status(200).send(cookbook.asModel());
+    res.status(200).send(cookbook.asJson());
   } catch (e) {
     next(e);
   }

@@ -1,10 +1,10 @@
 import * as E from 'express';
-import { AuthRequest, Recipe } from 'recipiece-common';
+import { AuthRequest, RecipeModel } from 'recipiece-common';
 
 export async function createRecipe(req: AuthRequest, res: E.Response) {
-  const recipe = await new Recipe({
+  const recipe = await new RecipeModel({
     ...req.body,
-    owner: req.user._id
+    owner: req.user.id,
   }).save();
-  res.status(201).send(recipe.asModel());
+  res.status(201).send(recipe.asJson());
 }

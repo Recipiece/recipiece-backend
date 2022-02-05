@@ -2,11 +2,7 @@ import * as E from 'express';
 import Fraction from 'fraction.js';
 import FuzzySet from 'fuzzyset.js';
 import {
-  AuthRequest,
-  DatabaseConstants,
-  DbI,
-  ICommonIngredient,
-  IMeasure,
+  AuthRequest, IMeasure,
   IRecipeIngredient,
   RecipieceError,
   Utils
@@ -98,11 +94,12 @@ async function convertDifferentUnitCategories(
 
   const bestMatchName = matches[0][1];
   // fetch the common ingredient for that name
-  const commonIngRequest = await DbI.queryEntity<ICommonIngredient>(DatabaseConstants.collections.commonIngredients, {
-    names: {
-      $all: [bestMatchName],
-    },
-  });
+  // const commonIngRequest = await DbI.queryEntity<ICommonIngredient>(DatabaseConstants.collections.commonIngredients, {
+  //   names: {
+  //     $all: [bestMatchName],
+  //   },
+  // });
+  const commonIngRequest: any = {data: []};
   if (commonIngRequest.data.length === 0) {
     throw new RecipieceError();
   }

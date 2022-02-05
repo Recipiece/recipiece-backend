@@ -7,9 +7,11 @@ import {
   updateCookbook,
 } from '../api/cookbook';
 import { Router } from 'express';
-import { rcpAuthMiddleware } from 'recipiece-common';
+import { dbConnectMiddleware, rcpAuthMiddleware } from 'recipiece-common';
 
 const router = Router();
+
+router.use(dbConnectMiddleware);
 
 router.post('/', rcpAuthMiddleware(), createCookbook);
 router.get('/:bookId', rcpAuthMiddleware(), getCookbook);

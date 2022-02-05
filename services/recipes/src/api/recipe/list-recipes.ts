@@ -1,6 +1,14 @@
-import { buildIngredientsQuery, buildNameQuery, buildTagsQuery } from '../util';
 import * as E from 'express';
-import { AuthRequest, DatabaseConstants, DbI, IPagedResult, IRecipe, UnauthorizedError } from 'recipiece-common';
+import {
+  AuthRequest,
+  Environment,
+  IPagedResponse,
+  IRecipe,
+  Recipe,
+  RecipeModel,
+  UnauthorizedError
+} from 'recipiece-common';
+import { buildIngredientsQuery, buildNameQuery, buildTagsQuery } from '../util';
 
 export async function listRecipesForUser(req: AuthRequest, res: E.Response, next: E.NextFunction) {
   try {
@@ -10,27 +18,32 @@ export async function listRecipesForUser(req: AuthRequest, res: E.Response, next
   }
 }
 
-async function listRecipes(req: AuthRequest): Promise<IPagedResult<IRecipe>> {
-
+async function listRecipes(req: AuthRequest): Promise<IPagedResponse<IRecipe>> {
   const owner = req.params.userId;
 
-  if(req.user._id !== owner) {
+  if (req.user.id !== owner) {
     throw new UnauthorizedError();
   }
 
   let requestQuery: any = {};
 
   // only query on certain things
-  requestQuery.owner = req.user._id;
-  requestQuery.private = owner === req.user._id;
+  requestQuery.owner = req.user.id;
+  requestQuery.private = owner === req.user.id;
   requestQuery = buildNameQuery(requestQuery, req);
   requestQuery = buildTagsQuery(requestQuery, req);
   requestQuery = buildIngredientsQuery(requestQuery, req);
 
-  return await DbI.queryEntity(
-    DatabaseConstants.collections.recipes,
-    requestQuery,
-    req.query?.page as string
-  );
-}
+  const page = await RecipeModel.paginate(requestQuery, {
+    limit: Environment.DB_PAGE_SIZE,
+    page: +(req.query.page || '0'),
+  });
 
+  const docs = page.docs.map((d: IRecipe) => new RecipeModel(d)).map((rm: Recipe) => rm.asJson());
+
+  return {
+    data: docs,
+    more: page.hasNextPage,
+    page: page.nextPage,
+  };
+}

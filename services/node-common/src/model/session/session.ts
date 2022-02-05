@@ -1,10 +1,12 @@
-import { DocumentType, getModelForClass, modelOptions, prop, ReturnModelType } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, pre, prop, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { DatabaseConstants } from '../../constants';
 import { utcNow } from '../../utils';
+import { modelUpdateSanitize } from '../hooks';
 import { ISession } from './session.i';
 
 @modelOptions({ schemaOptions: { collection: DatabaseConstants.collections.sessions } })
+@pre('update', modelUpdateSanitize)
 export class Session implements ISession {
   @prop() id: string;
   @prop({ type: String }) owner: string;
@@ -17,7 +19,7 @@ export class Session implements ISession {
     return SessionModel.findById(new Types.ObjectId(parts[0]));
   }
 
-  public serialize(this: DocumentType<Session>): string {
+  public serialize(this: DocumentType<any>): string {
     const valToEncode = `${this._id.toHexString()}.${this.owner}.${this.created}`;
     return Buffer.from(valToEncode).toString('base64');
   }

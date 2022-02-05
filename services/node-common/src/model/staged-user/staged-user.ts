@@ -1,10 +1,12 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, pre, prop } from '@typegoose/typegoose';
+import { modelUpdateSanitize } from '../hooks';
 import { DatabaseConstants } from '../../constants';
 import { utcNow } from '../../utils';
 import { AsJsonProvider } from '../base-model';
 import { IStagedUser } from './staged-user.i';
 
 @modelOptions({ schemaOptions: { collection: DatabaseConstants.collections.stagedUsers } })
+@pre('update', modelUpdateSanitize)
 export class StagedUser implements IStagedUser, AsJsonProvider<IStagedUser> {
   @prop() id: string;
   @prop({ type: String }) email: string;

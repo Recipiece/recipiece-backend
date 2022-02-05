@@ -1,7 +1,8 @@
-import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
 import { DatabaseConstants } from '../../constants';
 import { utcNow } from '../../utils';
 import { AsJsonProvider } from '../base-model';
+import { modelUpdateSanitize } from '../hooks';
 import { IUser } from './user.i';
 
 @modelOptions({
@@ -10,6 +11,7 @@ import { IUser } from './user.i';
     allowMixed: Severity.ALLOW,
   },
 })
+@pre('update', modelUpdateSanitize)
 export class User implements IUser, AsJsonProvider<IUser> {
   @prop() id: string;
   @prop({ type: String, default: '', unique: true }) email?: string;

@@ -1,7 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import { rcpErrorMiddleware, rcpLoggerMiddleware } from 'recipiece-common';
-import { sessionRouter, stagedUserRouter, userRouter } from './route';
+import { stagedUserRouter, userRouter } from './route';
 
 const app = express();
 app.use(cors());

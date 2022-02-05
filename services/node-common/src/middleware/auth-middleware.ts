@@ -31,5 +31,6 @@ async function runAuth(authHeader: string, permissions?: string[]): Promise<[Ses
     throw new UnauthorizedError();
   }
   // @TODO -- handle permissions
+  console.log(permissions);
   return [session, user];
 }

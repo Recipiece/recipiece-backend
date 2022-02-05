@@ -1,7 +1,17 @@
 import * as E from 'express';
-import { AuthRequest, DatabaseConstants, DbI, IPagedResult, IRecipe } from 'recipiece-common';
+import mongoose from 'mongoose';
+import {
+  AuthRequest,
+  CookbookModel,
+  Environment,
+  IPagedResponse,
+  IRecipe,
+  NotFoundError,
+  Recipe,
+  RecipeModel,
+  Utils
+} from 'recipiece-common';
 import { buildIngredientsQuery, buildNameQuery, buildTagsQuery } from '../util';
-import { fetchCookbookById } from './get-cookbook';
 
 export async function listRecipesForCookbook(req: AuthRequest, res: E.Response, next: E.NextFunction) {
   try {
@@ -11,19 +21,34 @@ export async function listRecipesForCookbook(req: AuthRequest, res: E.Response, 
   }
 }
 
-async function listRecipes(req: AuthRequest): Promise<IPagedResult<IRecipe>> {
-  const book = await fetchCookbookById(req.params.bookId);
+async function listRecipes(req: AuthRequest): Promise<IPagedResponse<IRecipe>> {
+  const book = await CookbookModel.findById(req.params.bookId);
+
+  if (Utils.nou(book)) {
+    throw new NotFoundError(req.params.bookId);
+  }
+
   let requestQuery: any = {
     _id: {
-      $in: book.recipes,
+      $in: book.recipes.map((recipeId: string) => new mongoose.Types.ObjectId(recipeId)),
     },
   };
 
   // build up any recipe queries in this cookbook
-  requestQuery.private = book.owner === req.user._id;
+  requestQuery.private = book.owner === req.user.id;
   requestQuery = buildNameQuery(requestQuery, req);
   requestQuery = buildTagsQuery(requestQuery, req);
   requestQuery = buildIngredientsQuery(requestQuery, req);
 
-  return await DbI.queryEntity(DatabaseConstants.collections.recipes, requestQuery, req.params.page);
+  const recipesPage = await RecipeModel.paginate(requestQuery, {
+    limit: Environment.DB_PAGE_SIZE,
+    page: +(req.query?.page || '0'),
+  });
+
+  const data = recipesPage.data.map((d: IRecipe) => new RecipeModel(d)).map((rm: Recipe) => rm.asJson());
+  return {
+    data: data,
+    page: recipesPage.nextPage,
+    more: recipesPage.hasNextPage,
+  };
 }

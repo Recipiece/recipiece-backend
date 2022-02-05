@@ -1,13 +1,15 @@
-import { DocumentType, getModelForClass, modelOptions, pre, prop } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, plugin, pre, prop } from '@typegoose/typegoose';
 import { DatabaseConstants } from '../../constants';
 import { utcNow } from '../../utils';
 import { AsJsonProvider } from '../base-model';
 import { IMeasure } from './measure.i';
+import paginate from 'mongoose-paginate-v2';
 
 @pre('save', function () {
   throw new Error('Cannot create new measures');
 })
 @modelOptions({schemaOptions: {collection: DatabaseConstants.collections.measures}})
+@plugin(paginate)
 export class Measure implements IMeasure, AsJsonProvider<IMeasure> {
   @prop() id: string;
   @prop({ type: [String] }) abbrs: string[];
