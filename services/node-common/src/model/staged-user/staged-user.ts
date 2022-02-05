@@ -1,60 +1,28 @@
-import { DatabaseConstants } from '../../constants/database-constants';
-import { DatabaseModel } from '../database-model';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { DatabaseConstants } from '../../constants';
+import { utcNow } from '../../utils';
+import { AsJsonProvider } from '../base-model';
 import { IStagedUser } from './staged-user.i';
 
-export class StagedUser extends DatabaseModel<IStagedUser> implements IStagedUser {
-  public get email(): string {
-    return this.model.email;
-  }
-  public set email(value: string) {
-    this.model.email = value;
-  }
+@modelOptions({ schemaOptions: { collection: DatabaseConstants.collections.stagedUsers } })
+export class StagedUser implements IStagedUser, AsJsonProvider<IStagedUser> {
+  @prop() id: string;
+  @prop({ type: String }) email: string;
+  @prop({ type: String }) password: string;
+  @prop({ type: String }) username: string;
+  @prop({ type: String }) salt: string;
+  @prop({ type: String }) nonce: string;
+  @prop({ type: String }) token: string;
+  @prop({ type: Number, default: utcNow() }) created: number;
 
-  public get username(): string {
-    return this.model.username;
-  }
-  public set username(value: string) {
-    this.model.username = value;
-  }
-
-  public get password(): string {
-    return this.model.password;
-  }
-  public set password(value: string) {
-    this.model.password = value;
-  }
-
-  public get salt(): string {
-    return this.model.salt;
-  }
-  public set salt(value: string) {
-    this.model.salt = value;
-  }
-
-  public get nonce(): string {
-    return this.model.nonce;
-  }
-  public set nonce(value: string) {
-    this.model.nonce = value;
-  }
-
-  public get token(): string {
-    return this.model.token;
-  }
-  public set token(value: string) {
-    this.model.token = value;
-  }
-
-  constructor(model: Partial<IStagedUser>) {
-    super(DatabaseConstants.collections.stagedUsers, (d) => new StagedUser(d), model);
-  }
-
-  public asJson(): Partial<IStagedUser> {
+  public asJson(this: DocumentType<StagedUser>): Partial<IStagedUser> {
     return {
-      _id: this._id,
+      id: this._id.toHexString(),
       created: this.created,
       token: this.token,
       username: this.username,
     };
   }
 }
+
+export const StagedUserModel = getModelForClass(StagedUser);

@@ -2,45 +2,29 @@ import { randomUUID } from 'crypto';
 import expect from 'expect';
 import http from 'http';
 import 'jest';
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 import nock from 'nock';
-import { DatabaseConstants, Environment, EnvironmentConstants, IUser } from 'recipiece-common';
+import { Environment, StagedUserModel, UserModel } from 'recipiece-common';
 import supertest from 'supertest';
-// @ts-ignore
-import { databaseApp } from '../../database/src/app';
 import { authApp } from '../src/app';
 
 describe('Staged Users', () => {
+  jest.setTimeout(20000);
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
-  let dbServer: http.Server;
 
-  beforeAll(() => {
-    dbServer = http.createServer(databaseApp);
-    dbServer.listen(Environment.DB_SERIVCE_PORT, Environment.DB_SERVICE_NAME);
-
+  beforeAll(async () => {
     server = http.createServer(authApp);
     superapp = supertest(server);
-  });
 
-  afterAll((done) => {
-    dbServer.close(done);
-  });
-
-  afterAll((done) => {
-    server.close(done);
+    // @ts-ignore
+    await mongoose.connect(global.mongoUri);
   });
 
   beforeEach(async () => {
-    // @ts-ignore
-    const connection = await MongoClient.connect(global.mongoUri);
-    const database = connection.db(Environment.DB_NAME);
-    try {
-      await database.collection(DatabaseConstants.collections.users).drop();
-    } catch {}
-    try {
-      await database.collection(DatabaseConstants.collections.stagedUsers).drop();
-    } catch {}
+    const collections = await mongoose.connection.db.collections();
+    const dropPromises = collections.map((c) => c.drop());
+    await Promise.all(dropPromises);
   });
 
   describe('Staging a User', () => {
@@ -135,13 +119,10 @@ describe('Staged Users', () => {
         .send({ token: token });
       expect(confirmResponse.status).toEqual(204);
 
-      // @ts-ignore
-      const connection = await MongoClient.connect(global.mongoUri);
-      const database = connection.db(Environment.DB_NAME);      
-      const results = database.collection(DatabaseConstants.collections.users).find();
-      const user = await results.next() as unknown as IUser;
-      expect(user).toBeTruthy();
-      expect(user._id).toBeTruthy();
+      const users = await UserModel.find().lean();
+      expect(users.length).toEqual(1);
+
+      const user = users[0];
       expect(user.username).toEqual(username);
       expect(user.email).toEqual(email);
     });
@@ -159,16 +140,10 @@ describe('Staged Users', () => {
         .send({ username, email, password });
       const { token } = stageResponse.body;
 
-      await superapp
-        .post('/staged-users/confirm')
-        .set('Content-Type', 'application/json')
-        .send({ token: token });
+      await superapp.post('/staged-users/confirm').set('Content-Type', 'application/json').send({ token: token });
 
-      // @ts-ignore
-      const connection = await MongoClient.connect(global.mongoUri);
-      const database = connection.db(EnvironmentConstants.variables.dbName);      
-      const results = database.collection(DatabaseConstants.collections.stagedUsers).find({});
-      expect(await results.count()).toEqual(0);
+      const stagedUsers = await StagedUserModel.find();
+      expect(stagedUsers.length).toEqual(0);
     });
   });
 });

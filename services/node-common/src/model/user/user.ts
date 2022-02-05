@@ -1,71 +1,30 @@
-import { DatabaseConstants } from '../../constants/database-constants';
-import { DatabaseModel } from '../database-model';
+import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { DatabaseConstants } from '../../constants';
+import { utcNow } from '../../utils';
+import { AsJsonProvider } from '../base-model';
 import { IUser } from './user.i';
 
-export class User extends DatabaseModel<IUser> implements IUser {
-  public get email(): string {
-    return this.model.email;
-  }
-  public set email(value: string) {
-    this.model.email = value;
-  }
+@modelOptions({
+  schemaOptions: { collection: DatabaseConstants.collections.users },
+  options: {
+    allowMixed: Severity.ALLOW,
+  },
+})
+export class User implements IUser, AsJsonProvider<IUser> {
+  @prop() id: string;
+  @prop({ type: String, default: '', unique: true }) email?: string;
+  @prop({ type: String, default: '', unique: true }) username?: string;
+  @prop({ type: String, default: '' }) password?: string;
+  @prop({ type: String, default: '' }) salt?: string;
+  @prop({ type: String, default: '' }) nonce?: string;
+  @prop({ type: Map, default: {} }) preferences?: any;
+  @prop({ type: Array, default: [] }) permissions?: string[];
+  @prop({ type: String, default: '' }) subscriptionId?: string;
+  @prop({ type: Number, default: utcNow() }) created: number;
 
-  public get username(): string {
-    return this.model.username;
-  }
-  public set username(value: string) {
-    this.model.username = value;
-  }
-
-  public get password(): string {
-    return this.model.password;
-  }
-  public set password(value: string) {
-    this.model.password = value;
-  }
-
-  public get salt(): string {
-    return this.model.salt;
-  }
-  public set salt(value: string) {
-    this.model.salt = value;
-  }
-
-  public get nonce(): string {
-    return this.model.nonce;
-  }
-  public set nonce(value: string) {
-    this.model.nonce = value;
-  }
-
-  public get preferences(): any {
-    return this.model.preferences;
-  }
-  public set preferences(value: any) {
-    this.model.preferences = value;
-  }
-
-  public get permissions(): string[] {
-    return this.model.permissions;
-  }
-  public set permissions(value: string[]) {
-    this.model.permissions = value;
-  }
-
-  public get subscriptionId(): string {
-    return this.model.subscriptionId;
-  }
-  public set subscriptionId(value: string) {
-    this.model.subscriptionId = value;
-  }
-
-  constructor(model: Partial<IUser>) {
-    super(DatabaseConstants.collections.users, (d) => new User(d), model);
-  }
-
-  public asJson(): Partial<IUser> {
+  public asJson(this: DocumentType<User>): Partial<IUser> {
     return {
-      _id: this._id,
+      id: this._id.toHexString(),
       created: this.created,
       username: this.username,
       preferences: this.preferences,
@@ -74,3 +33,5 @@ export class User extends DatabaseModel<IUser> implements IUser {
     };
   }
 }
+
+export const UserModel = getModelForClass(User);

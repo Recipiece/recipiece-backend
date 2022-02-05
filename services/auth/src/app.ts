@@ -14,7 +14,6 @@ app.get('/health-check', (_, res) => {
 
 app.use('/staged-users', stagedUserRouter);
 app.use('/users', userRouter);
-app.use('/sessions', sessionRouter);
 
 app.use(rcpErrorMiddleware);
 

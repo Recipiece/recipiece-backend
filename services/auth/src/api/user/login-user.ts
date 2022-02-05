@@ -1,12 +1,5 @@
 import * as E from 'express';
-import {
-  DatabaseConstants,
-  DbI, IUser,
-  NotFoundError,
-  Session,
-  UnauthorizedError,
-  User
-} from 'recipiece-common';
+import { IUser, NotFoundError, SessionModel, UnauthorizedError, UserModel, Utils } from 'recipiece-common';
 import { comparePasswords } from '../../encrypt/compare-passwords';
 
 export interface LoggedInBundle {
@@ -25,24 +18,23 @@ export async function loginUser(req: E.Request, res: E.Response, next: E.NextFun
 }
 
 async function login(name: string, password: string): Promise<LoggedInBundle> {
-  const userQuery = await DbI.queryEntity<IUser>(DatabaseConstants.collections.users, {
+  const user = await UserModel.findOne({
     $or: [{ email: name }, { username: name }],
   });
 
-  if (userQuery.data.length > 0) {
-    const userLookup = new User(userQuery.data[0]);
-    const expectedPassword = userLookup.password;
-    const expectedSalt = userLookup.salt;
-    const expectedNonce = userLookup.nonce;
+  if (!Utils.nou(user)) {
+    const expectedPassword = user.password;
+    const expectedSalt = user.salt;
+    const expectedNonce = user.nonce;
     const passwordsMatch = await comparePasswords(password, expectedPassword, expectedSalt, expectedNonce);
     if (passwordsMatch) {
-      let session = new Session({
-        owner: userLookup._id,
+      let session = new SessionModel({
+        owner: user._id,
       });
       await session.save();
       return {
         token: session.serialize(),
-        user: userLookup.asJson(),
+        user: user.asJson(),
       };
     } else {
       throw new UnauthorizedError();

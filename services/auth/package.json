@@ -4,7 +4,7 @@
   "description": "authentication and authorization for recipiece",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest --forceExit",
+    "test": "jest --runInBand --forceExit",
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.prod.json",
     "run-dev": "node ./nodemon-runner.js",
@@ -16,26 +16,24 @@
   "license": "MPL-2.0",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "mongodb": "^4.3.1",
+    "mongoose": "^6.2.0"
   },
   "devDependencies": {
     "@types/axios-mock-adapter": "^1.10.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/jest": "^27.4.0",
-    "@types/mongodb": "^4.0.7",
     "@types/node": "^17.0.10",
     "@types/supertest": "^2.0.11",
-    "axios-mock-adapter": "^1.20.0",
-    "expect": "^27.4.2",
     "jest": "^27.4.7",
-    "mongodb": "^4.3.1",
+    "mongodb-memory-server": "^8.2.0",
     "nock": "^13.2.1",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2",
     "ts-jest": "^27.1.3",
     "ts-node": "^10.4.0",
-    "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.4"
   }
 }

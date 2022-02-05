@@ -1,4 +1,4 @@
-import { IUserOwnedModel } from '../user-owned-model.i';
+import { IBaseUserOwnedModel } from "../base-model";
 
 export type RecipeStepLengthUnit = 'h' | 'm' | 's' | 'd';
 
@@ -38,7 +38,7 @@ export interface IRecipeSection {
 }
 
 
-export interface IRecipe extends IUserOwnedModel {
+export interface IRecipe extends IBaseUserOwnedModel {
   name: string;
   description: string;
   private: boolean;

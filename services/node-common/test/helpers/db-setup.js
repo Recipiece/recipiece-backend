@@ -1,5 +1,5 @@
 const MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer;
-const EnvironmentConstants = require('recipiece-common').EnvironmentConstants;
+const EnvironmentConstants = require('../../src/constants/environment-contstants').EnvironmentConstants;
 
 module.exports = async () => {
   await MongoMemoryServer.create({

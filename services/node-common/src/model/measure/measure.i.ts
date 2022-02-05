@@ -1,4 +1,4 @@
-import { IBaseModel } from '../base-model.i';
+import { IBaseModel } from '../base-model';
 
 export interface IMeasure extends IBaseModel {
   abbrs: string[];
@@ -9,5 +9,5 @@ export interface IMeasure extends IBaseModel {
   };
   factor: number;
   base: boolean;
-  preferFractions?: boolean,
+  preferFractions?: boolean;
 }

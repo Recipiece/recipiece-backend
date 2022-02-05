@@ -1,4 +1,4 @@
 import { Request } from 'express';
-import { IUser } from '../model';
+import { Session, User } from '../model';
 
-export type AuthRequest = Request & {user: IUser, token: string};
+export type AuthRequest = Request & { user: User; session: Session };

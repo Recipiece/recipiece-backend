@@ -1,5 +1,3 @@
-import { IUserOwnedModel } from '../user-owned-model.i';
+import { IBaseUserOwnedModel } from '../base-model';
 
-export interface ISession extends IUserOwnedModel {
-  
-}
+export interface ISession extends IBaseUserOwnedModel {}

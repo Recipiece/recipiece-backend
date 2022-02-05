@@ -1,11 +1,9 @@
 import http from 'http';
 import 'jest';
-import { MongoClient } from 'mongodb';
 import nock from 'nock';
-import { DatabaseConstants, Environment, IUser } from 'recipiece-common';
+import mongoose from 'mongoose';
+import { Environment, IUser } from 'recipiece-common';
 import supertest from 'supertest';
-// @ts-ignore
-import { databaseApp } from '../../database/src/app';
 import { authApp } from '../src/app';
 
 describe('Users', () => {
@@ -15,34 +13,19 @@ describe('Users', () => {
 
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
-  let dbServer: http.Server;
 
-  beforeAll(() => {
-    dbServer = http.createServer(databaseApp);
-    dbServer.listen(Environment.DB_SERIVCE_PORT, Environment.DB_SERVICE_NAME);
-
+  beforeAll(async () => {
     server = http.createServer(authApp);
     superapp = supertest(server);
-  });
 
-  afterAll((done) => {
-    dbServer.close(done);
-  });
-
-  afterAll((done) => {
-    server.close(done);
+    // @ts-ignore
+    await mongoose.connect(global.mongoUri);
   });
 
   beforeEach(async () => {
-    // @ts-ignore
-    const connection = await MongoClient.connect(global.mongoUri);
-    const database = connection.db(Environment.DB_NAME);
-    try {
-      await database.collection(DatabaseConstants.collections.users).drop();
-    } catch {}
-    try {
-      await database.collection(DatabaseConstants.collections.stagedUsers).drop();
-    } catch {}
+    const collections = await mongoose.connection.db.collections();
+    const dropPromises = collections.map((c) => c.drop());
+    await Promise.all(dropPromises);
   });
 
   beforeEach(async () => {
@@ -65,8 +48,8 @@ describe('Users', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.token).toBeTruthy();
-      const bodyUser: Partial<IUser> = response.body.user;
-      expect(bodyUser._id).toBeTruthy();
+      const bodyUser: Partial<IUser & { id: string }> = response.body.user;
+      expect(bodyUser.id).toBeTruthy();
       expect(bodyUser.username).toEqual(username);
     });
 
@@ -79,7 +62,7 @@ describe('Users', () => {
       expect(response.status).toEqual(200);
       expect(response.body.token).toBeTruthy();
       const bodyUser: Partial<IUser> = response.body.user;
-      expect(bodyUser._id).toBeTruthy();
+      expect(bodyUser.id).toBeTruthy();
       expect(bodyUser.username).toEqual(username);
     });
 
@@ -109,10 +92,12 @@ describe('Users', () => {
         .set('Content-Type', 'application/json')
         .send({ name: username, password: password });
 
+      const { token } = loginResponse.body;
+
       const response = await superapp
         .post('/users/logout')
         .set('Content-Type', 'application/json')
-        .set('Authorization', `Bearer ${loginResponse.body.token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send();
 
       expect(response.status).toEqual(204);

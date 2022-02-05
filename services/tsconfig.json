@@ -8,6 +8,9 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "allowJs": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true
   },
   "exclude": ["node_modules"]
 }

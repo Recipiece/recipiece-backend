@@ -8,7 +8,6 @@
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts",
-    "../database/src/**/*.ts"
+    "test/**/*.ts"
   ],
 }

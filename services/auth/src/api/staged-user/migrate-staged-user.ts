@@ -1,5 +1,5 @@
 import * as E from 'express';
-import { DatabaseConstants, DbI, IStagedUser, NotFoundError, StagedUser, User, Utils } from 'recipiece-common';
+import { NotFoundError, StagedUserModel, UserModel, Utils } from 'recipiece-common';
 
 export async function migrateStagedUser(req: E.Request, res: E.Response, next: E.NextFunction) {
   const { token } = req.body;
@@ -11,16 +11,15 @@ export async function migrateStagedUser(req: E.Request, res: E.Response, next: E
   }
 }
 
-async function migrate(token: string): Promise<User> {
-  const dbResponse = await DbI.queryEntity<IStagedUser>(DatabaseConstants.collections.stagedUsers, {
+async function migrate(token: string) {
+  const stagedUser = await StagedUserModel.findOne({
     token: token,
   });
 
-  if (dbResponse.data.length === 0) {
+  if (Utils.nou(stagedUser)) {
     throw new NotFoundError(token);
   }
-  const stagedUser = new StagedUser(dbResponse.data[0]);
-  const user = new User({
+  const user = new UserModel({
     username: stagedUser.username,
     email: stagedUser.email,
     password: stagedUser.password,
@@ -29,6 +28,6 @@ async function migrate(token: string): Promise<User> {
     preferences: {},
     permissions: [],
   });
+  await user.save();
   await stagedUser.delete();
-  return await user.save();
 }

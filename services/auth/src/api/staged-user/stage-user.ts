@@ -1,12 +1,12 @@
 import { randomUUID } from 'crypto';
 import * as E from 'express';
-import { BadRequestError, ConflictError, EmailI, StagedUser, Utils } from 'recipiece-common';
+import { BadRequestError, ConflictError, EmailI, StagedUserModel, Utils } from 'recipiece-common';
 import { encryptPassword } from '../../encrypt/encrypt-password';
 import { getUserByEmail, getUserByUsername } from '../user/get-user';
 
 export async function stageUser(req: E.Request, res: E.Response, next: E.NextFunction) {
   try {
-    const {username, email, password} = req.body;
+    const { username, email, password } = req.body;
     const staged = await stage(username, email, password);
     res.status(201).send(staged.asJson());
   } catch (e) {
@@ -14,7 +14,7 @@ export async function stageUser(req: E.Request, res: E.Response, next: E.NextFun
   }
 }
 
-async function stage(username: string, email: string, password: string): Promise<StagedUser> {
+async function stage(username: string, email: string, password: string) {
   if (Utils.nou(username)) {
     throw new BadRequestError('username', username);
   }
@@ -37,7 +37,7 @@ async function stage(username: string, email: string, password: string): Promise
   }
 
   const pwBundle = await encryptPassword(password);
-  let stagedUser = new StagedUser({
+  const stagedUser = new StagedUserModel({
     email: email,
     username: username,
     password: pwBundle.password,
@@ -48,7 +48,7 @@ async function stage(username: string, email: string, password: string): Promise
 
   // save the staged user
   try {
-    stagedUser = await stagedUser.save();
+    await stagedUser.save();
     await EmailI.sendCreateAccountEmail(username, stagedUser.token);
     return stagedUser;
   } catch (keyErr) {

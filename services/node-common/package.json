@@ -14,21 +14,25 @@
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.13",
-    "@types/mocha": "^9.0.0",
     "@types/nock": "^11.1.0",
-    "@types/node": "^17.0.6",
+    "@types/node": "16.11.7",
     "@types/uuid": "^8.3.4",
     "mocha": "^9.1.3",
+    "mongodb-memory-server": "^8.2.0",
     "nock": "^13.2.2",
     "prettier": "^2.5.1",
     "ts-jest": "^27.1.3",
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@typegoose/typegoose": "^9.5.0",
     "axios": "^0.24.0",
     "cryo": "^0.0.6",
     "dotenv": "^14.2.0",
     "express": "^4.17.2",
+    "mongodb": "^4.3.1",
+    "mongoose": "6.1.6",
+    "mongoose-paginate-v2": "ypicard/mongoose-paginate-v2#typings",
     "uuid": "^8.3.2"
   }
 }

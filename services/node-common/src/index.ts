@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { IUser } from './model/user/user.i';
+import { User, Session } from './model';
 
 let file;
 
@@ -23,8 +23,8 @@ dotenv.config({
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: IUser;
-    token?: string;
+    user?: User;
+    session?: Session;
   }
 }
 

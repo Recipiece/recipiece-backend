@@ -1,10 +1,10 @@
 import { NextFunction, Response } from 'express';
-import { AuthRequest, IUser, Session } from 'recipiece-common';
+import { AuthRequest, IUser, Session, SessionModel } from 'recipiece-common';
 
 export async function logoutUser(req: AuthRequest, res: Response, next: NextFunction) {
-  const { token, user } = req;
+  const { session } = req;
   try {
-    await logout(token, user);
+    await SessionModel.findByIdAndDelete(session.id);
     res.status(204).send();
   } catch (e) {
     next(e);
@@ -12,6 +12,6 @@ export async function logoutUser(req: AuthRequest, res: Response, next: NextFunc
 }
 
 async function logout(token: string, user: Partial<IUser>) {
-  const session = Session.deserialize(token);
+  const session = await Session.deserialize(token);
   await session.delete();
 }

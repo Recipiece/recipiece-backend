@@ -1,4 +1,4 @@
-import { IBaseModel } from '../base-model.i';
+import { IBaseModel } from '../base-model';
 
 export interface ICommonIngredient extends IBaseModel {
   names: string[];
