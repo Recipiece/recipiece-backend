@@ -15,8 +15,8 @@ export async function emailRequest<RequestT, ResponseT>(request: AxiosRequestCon
   return response.data;
 }
 
-export async function sendCreateAccountEmail(to: string, token: string) {
-  await emailRequest({
+export async function sendCreateAccountEmail(to: string, token: string): Promise<any> {
+  return await emailRequest({
     data: {
       to: to,
       data: { token },
@@ -26,8 +26,8 @@ export async function sendCreateAccountEmail(to: string, token: string) {
   });
 }
 
-export async function sendForgotPasswordEmail(to: string, token: string) {
-  await emailRequest({
+export async function sendForgotPasswordEmail(to: string, token: string): Promise<any> {
+  return await emailRequest({
     data: {
       to: to,
       data: { token },
@@ -37,8 +37,8 @@ export async function sendForgotPasswordEmail(to: string, token: string) {
   });
 }
 
-export async function sendSharedShoppingListEmail(to: string, listId: string, ownerEmail: string) {
-  await emailRequest({
+export async function sendSharedShoppingListEmail(to: string, listId: string, ownerEmail: string): Promise<any> {
+  return await emailRequest({
     data: {
       to: to,
       data: {

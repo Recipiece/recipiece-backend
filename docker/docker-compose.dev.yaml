@@ -57,13 +57,13 @@ services:
     volumes:
       - ../services/auth/src:/rcp-auth/auth/src
       - ../services/node-common/src/:/rcp-auth/node-common/src/
-  # rcp-recipes:
-  #   container_name: "recipiece-recipes"
-  #   build:
-  #     context: ../services
-  #     dockerfile: ../docker/services/dev/Dockerfile.recipes
-  #   ports:
-  #     - "8802:8802"
-  #   volumes:
-  #     - ../services/recipes/src/:/rcp-recipes/recipes/src/
-  #     - ../services/node-common/src/:/rcp-recipes/node-common/src/
+  rcp-recipes:
+    container_name: "recipiece-recipes"
+    build:
+      context: ../services
+      dockerfile: ../docker/services/dev/Dockerfile.recipes
+    ports:
+      - "8802:8802"
+    volumes:
+      - ../services/recipes/src/:/rcp-recipes/recipes/src/
+      - ../services/node-common/src/:/rcp-recipes/node-common/src/

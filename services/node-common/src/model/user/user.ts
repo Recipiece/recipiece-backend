@@ -13,7 +13,7 @@ import { IUser } from './user.i';
 })
 @pre('update', modelUpdateSanitize)
 export class User implements IUser, AsJsonProvider<IUser> {
-  @prop() id: string;
+  id: string;
   @prop({ type: String, default: '', unique: true }) email?: string;
   @prop({ type: String, default: '', unique: true }) username?: string;
   @prop({ type: String, default: '' }) password?: string;

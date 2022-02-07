@@ -9,7 +9,7 @@ import { ICommonIngredientName } from './common-ingredient-name.i';
 })
 @modelOptions({ schemaOptions: { collection: DatabaseConstants.collections.commonIngredientNames } })
 export class CommonIngredientName implements ICommonIngredientName, AsJsonProvider<ICommonIngredientName> {
-  @prop() id: string;
+  id: string;
   @prop({ type: String }) name: string;
   @prop({ type: Number, default: utcNow() }) created: number;
 

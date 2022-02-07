@@ -49,7 +49,7 @@ async function stage(username: string, email: string, password: string) {
   // save the staged user
   try {
     await stagedUser.save();
-    await EmailI.sendCreateAccountEmail(username, stagedUser.token);
+    await EmailI.sendCreateAccountEmail(email, stagedUser.token);
     return stagedUser;
   } catch (keyErr) {
     throw new ConflictError();

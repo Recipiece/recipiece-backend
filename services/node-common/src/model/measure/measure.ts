@@ -11,7 +11,7 @@ import paginate from 'mongoose-paginate-v2';
 @modelOptions({schemaOptions: {collection: DatabaseConstants.collections.measures}})
 @plugin(paginate)
 export class Measure implements IMeasure, AsJsonProvider<IMeasure> {
-  @prop() id: string;
+  id: string;
   @prop({ type: [String] }) abbrs: string[];
   @prop({ type: String }) cat: 'w' | 'v';
   @prop({ type: Map }) name: { s: string; p: string };

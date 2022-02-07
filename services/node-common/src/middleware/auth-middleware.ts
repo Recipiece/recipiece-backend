@@ -17,6 +17,7 @@ export function rcpAuthMiddleware(permissions?: string[]) {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function runAuth(authHeader: string, permissions?: string[]): Promise<[Session, User]> {
   if (nou(authHeader)) {
     throw new UnauthorizedError();
@@ -31,6 +32,5 @@ async function runAuth(authHeader: string, permissions?: string[]): Promise<[Ses
     throw new UnauthorizedError();
   }
   // @TODO -- handle permissions
-  console.log(permissions);
   return [session, user];
 }

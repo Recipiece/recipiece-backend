@@ -11,7 +11,7 @@ import { IRecipe, IRecipeAdvancedOptions, IRecipeSection } from './recipe.i';
 @pre('update', modelUpdateSanitize)
 @plugin(paginate)
 export class Recipe implements IRecipe, AsJsonProvider<IRecipe> {
-  @prop() id: string;
+  id: string;
   @prop({ type: String }) name: string;
   @prop({ type: String }) description: string;
   @prop({ type: Boolean }) private: boolean;

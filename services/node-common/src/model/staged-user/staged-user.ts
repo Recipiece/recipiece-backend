@@ -8,7 +8,7 @@ import { IStagedUser } from './staged-user.i';
 @modelOptions({ schemaOptions: { collection: DatabaseConstants.collections.stagedUsers } })
 @pre('update', modelUpdateSanitize)
 export class StagedUser implements IStagedUser, AsJsonProvider<IStagedUser> {
-  @prop() id: string;
+  id: string;
   @prop({ type: String }) email: string;
   @prop({ type: String }) password: string;
   @prop({ type: String }) username: string;

@@ -11,7 +11,7 @@ import paginate from 'mongoose-paginate-v2';
 @pre('update', modelUpdateSanitize)
 @plugin(paginate)
 export class Cookbook implements ICookbook, AsJsonProvider<ICookbook> {
-  @prop() id: string;
+  id: string;
   @prop({ type: String }) name: string;
   @prop({ type: String }) description: string;
   @prop({ type: () => [String] }) recipes: string[];
