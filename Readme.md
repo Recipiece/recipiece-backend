@@ -1,4 +1,4 @@
-# Recipiece
+# Recipiece Backend
 The Cool Recipe App
 
 Recipiece is a recipe keeping application.

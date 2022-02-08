@@ -3,12 +3,14 @@ import mongoose from 'mongoose';
 import { Environment } from '../environment';
 import { nou } from '../utils';
 
+let mongooseConnection: mongoose.Connection;
+
 export async function dbConnectMiddleware(req: Request, res: Response, next: NextFunction) {
-  await connect();
+  await getMongooseConnection();
   next();
 }
 
-async function connect() {
+export async function getMongooseConnection(): Promise<mongoose.Connection> {
   // @ts-ignore
   if (nou(global._rcpMongooseConnection)) {
     const username = Environment.DB_USER;
@@ -18,18 +20,20 @@ async function connect() {
     const dbName = Environment.DB_NAME;
     const uri = `mongodb://${host}:${port}`;
 
-    const mongooseConnection = await mongoose.connect(uri, {
+    await mongoose.connect(uri, {
       user: username,
       pass: password,
       dbName: dbName,
       authSource: 'admin',
       bufferCommands: false,
     });
-    mongooseConnection.connection.on('disconnected', () => {
+    mongooseConnection = mongoose.connection;
+    mongooseConnection.on('disconnected', () => {
       // @ts-ignore
       global._rcpMongooseConnection = undefined;
     });
     // @ts-ignore
     global._rcpMongooseConnection = true;
   }
+  return mongooseConnection;
 }

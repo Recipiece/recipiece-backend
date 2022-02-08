@@ -4,24 +4,23 @@ import http from 'http';
 import 'jest';
 import mongoose from 'mongoose';
 import nock from 'nock';
-import { Environment, StagedUserModel, UserModel } from 'recipiece-common';
+import { Environment, getMongooseConnection, StagedUserModel, UserModel } from 'recipiece-common';
 import supertest from 'supertest';
 import { authApp } from '../src/app';
 
 describe('Staged Users', () => {
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
+  let mongooseConnection: mongoose.Connection;
 
   beforeAll(async () => {
     server = http.createServer(authApp);
     superapp = supertest(server);
-
-    // @ts-ignore
-    await mongoose.connect(global.mongoUri);
+    mongooseConnection = await getMongooseConnection();
   });
 
   beforeEach(async () => {
-    const collections = await mongoose.connection.db.collections();
+    const collections = await mongooseConnection.db.collections();
     const dropPromises = collections.map((c) => c.drop());
     await Promise.all(dropPromises);
   });

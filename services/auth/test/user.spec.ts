@@ -7,6 +7,7 @@ import {
   Environment,
   ForgotPasswordToken,
   ForgotPasswordTokenModel,
+  getMongooseConnection,
   IUser,
   SessionModel,
   User,
@@ -20,6 +21,7 @@ describe('Users', () => {
   const username = 'test_user';
   const password = 'password1!';
   let testUser: User;
+  let mongooseConnection: mongoose.Connection;
 
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
@@ -47,13 +49,11 @@ describe('Users', () => {
   beforeAll(async () => {
     server = http.createServer(authApp);
     superapp = supertest(server);
-
-    // @ts-ignore
-    await mongoose.connect(global.mongoUri);
+    mongooseConnection = await getMongooseConnection();
   });
 
   beforeEach(async () => {
-    const collections = await mongoose.connection.db.collections();
+    const collections = await mongooseConnection.db.collections();
     const dropPromises = collections.map((c) => c.drop());
     await Promise.all(dropPromises);
   });

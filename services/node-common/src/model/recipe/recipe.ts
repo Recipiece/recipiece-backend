@@ -1,7 +1,7 @@
 import { DocumentType, getModelForClass, modelOptions, plugin, pre, prop } from '@typegoose/typegoose';
 import paginate from 'mongoose-paginate-v2';
 import { DatabaseConstants } from '../../constants';
-import { utcNow } from '../../utils';
+import { nou, utcNow } from '../../utils';
 import { AsJsonProvider } from '../base-model';
 import { modelUpdateSanitize } from '../hooks';
 import { PaginateMethod } from '../paged-response';
@@ -32,6 +32,22 @@ export class Recipe implements IRecipe, AsJsonProvider<IRecipe> {
       sections: this.sections,
       tags: this.tags,
     };
+  }
+
+  public equals(this: DocumentType<any>, other: Partial<IRecipe>): boolean {
+    return this.id === other.id &&
+      this.name === other.name &&
+      this.description === other.description &&
+      this._cmpSections(this.sections, other.sections);
+  }
+
+  private _cmpSections(s1s: IRecipeSection[], s2s: IRecipeSection[]): boolean {
+    if(nou(s1s) && !nou(s2s) || nou(s2s) && !nou(s1s)) {
+      return false;
+    }
+    if(s1s.length !== s2s.length) {
+      return false;
+    }
   }
 
   static paginate: PaginateMethod<Recipe>;
