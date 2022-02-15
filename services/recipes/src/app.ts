@@ -12,7 +12,7 @@ app.get('/health-check', (_, res) => {
   res.status(200).send('Hello from Recipiece Recipes!');
 });
 
-app.use('/recipes', recipeRouter);
+app.use('/', recipeRouter);
 app.use('/cookbooks', cookbookRouter);
 app.use('/converter', converterRouter);
 

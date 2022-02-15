@@ -42,7 +42,7 @@ async function listCookbooks(userId: string, requestingId: string, query: any): 
     limit: Environment.DB_PAGE_SIZE,
     page: +(query?.page || '0'),
   });
-  const data = page.data.map((d: ICookbook) => new CookbookModel(d)).map((cm: Cookbook) => cm.asJson());
+  const data = (page.data || []).map((d: ICookbook) => new CookbookModel(d)).map((cm: Cookbook) => cm.asJson());
   return {
     data: data,
     page: page.nextPage,

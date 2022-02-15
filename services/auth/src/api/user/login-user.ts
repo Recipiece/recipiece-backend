@@ -28,7 +28,7 @@ async function login(name: string, password: string): Promise<LoggedInBundle> {
     const expectedNonce = user.nonce;
     const passwordsMatch = await comparePasswords(password, expectedPassword, expectedSalt, expectedNonce);
     if (passwordsMatch) {
-      let session = new SessionModel({
+      const session = new SessionModel({
         owner: user._id,
       });
       await session.save();

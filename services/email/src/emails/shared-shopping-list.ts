@@ -17,6 +17,7 @@ export async function sendSharedShoppingListEmail(req: E.Request, res: E.Respons
       subject: 'Shopping List Access Granted',
       htmlContent: genHtmlContent(data.owner, data.list),
     });
+    res.status(204).send();
   }
 }
 

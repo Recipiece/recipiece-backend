@@ -15,6 +15,7 @@ export async function sendForgotPasswordEmail(req: E.Request, res: E.Response, n
       subject: 'Forgot Password Request',
       htmlContent: genHtmlContent(to, data.token),
     });
+    res.status(204).send();
   }
 }
 

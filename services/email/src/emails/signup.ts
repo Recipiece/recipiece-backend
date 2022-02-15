@@ -15,6 +15,7 @@ export async function sendSignupEmail(req: E.Request, res: E.Response, next: E.N
       subject: 'Confirm Account Creation',
       htmlContent: genHtmlContent(data.token),
     });
+    res.status(204).send();
   }
 }
 
@@ -29,7 +30,7 @@ ${token}
 Alternatively, you can <a href=\"${confirmUrl}\">click here</a> or go to the following
 URL in your browser to confirm your account.
 <br/><br/>
-{confirmUrl}
+${confirmUrl}
 <br/><br/>
 ${generateSendoff()}
   `.trim();
