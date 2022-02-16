@@ -7,7 +7,6 @@ import supertest from 'supertest';
 import { recipeApp } from '../src/app';
 
 describe('Recipes', () => {
-  jest.setTimeout(20000);
   let server: http.Server;
   let superapp: supertest.SuperTest<any>;
   let user: User;
@@ -46,7 +45,7 @@ describe('Recipes', () => {
       };
 
       const createResponse = await superapp
-        .post('/recipes/')
+        .post('/')
         .set('Content-Type', 'application/json')
         .set('Authorization', `Bearer ${session.serialize()}`)
         .send(recipeBody);
@@ -65,13 +64,13 @@ describe('Recipes', () => {
         sections: [],
       };
 
-      const createResponse = await superapp.post('/recipes/').set('Content-Type', 'application/json').send(recipeBody);
+      const createResponse = await superapp.post('/').set('Content-Type', 'application/json').send(recipeBody);
       expect(createResponse.status).toEqual(401);
     });
   });
 
   describe('Updating a Recipe', () => {
-    fit('should allow a user to update their recipe', async () => {
+    it('should allow a user to update their recipe', async () => {
       const recipeBody: Partial<IRecipe> = {
         name: 'test recipe',
         description: 'a test recipe',
@@ -79,7 +78,7 @@ describe('Recipes', () => {
       };
 
       const createResponse = await superapp
-        .post('/recipes/')
+        .post('/')
         .set('Content-Type', 'application/json')
         .set('Authorization', `Bearer ${session.serialize()}`)
         .send(recipeBody);
@@ -106,7 +105,7 @@ describe('Recipes', () => {
         }]
       };
 
-      const updateResponse = await superapp.put(`/recipes/${createdId}`)
+      const updateResponse = await superapp.put(`/${createdId}`)
         .set('Content-Type', 'application/json')
         .set('Authorization', `Bearer ${session.serialize()}`)
         .send(updatedBody);
