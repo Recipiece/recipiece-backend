@@ -6,4 +6,4 @@ export * from './recipe';
 export * from './session';
 export * from './staged-user';
 export * from './user';
-
+export * from './user-permissions';

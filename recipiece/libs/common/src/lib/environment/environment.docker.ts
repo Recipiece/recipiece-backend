@@ -18,12 +18,15 @@ export class DockerEnvironment {
     process.env[EnvironmentConstants.variables.supportEmailAddress] = 'support@recipiece.org';
     process.env[EnvironmentConstants.variables.mailjetSecret] = 'nonsense-secret';
     process.env[EnvironmentConstants.variables.mailjetApiKey] = 'nonsense-api-key';
-
+    
     process.env[EnvironmentConstants.variables.authServicePort] = '8801';
     process.env[EnvironmentConstants.variables.authServiceName] = 'recipiece-auth';
 
     process.env[EnvironmentConstants.variables.recipeServicePort] = '8802';
     process.env[EnvironmentConstants.variables.recipeServiceName] = 'recipiece-recipes';
+
+    process.env[EnvironmentConstants.variables.shoppingServicePort] = '8803';
+    process.env[EnvironmentConstants.variables.shoppingServiceName] = 'recipiece-shopping';
 
     process.env[EnvironmentConstants.variables.emailServicePort] = '7801';
     process.env[EnvironmentConstants.variables.emailServiceName] = 'recipiece-email';

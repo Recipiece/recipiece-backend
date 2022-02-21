@@ -8,15 +8,17 @@ import {
   Post,
   Put,
   Req,
-  UnauthorizedException
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
 import { CookbookService, ICookbook, RecipeService } from '@recipiece/database';
-import { AuthRequest } from '@recipiece/middleware';
+import { AuthorizationGuard, AuthRequest } from '@recipiece/middleware';
 import { Types } from 'mongoose';
 import { RecipeQueryHelper } from '../../api';
 
 @Controller('cookbooks')
+@UseGuards(AuthorizationGuard)
 export class CookbooksController {
   constructor(
     private cookbookService: CookbookService,

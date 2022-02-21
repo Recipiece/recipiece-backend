@@ -26,6 +26,8 @@ class EnvironmentVariables {
   static readonly authServiceName = 'RCP_SRV_AUTH_NAME';
   static readonly recipeServiceName = 'RCP_SRV_RECIPE_NAME';
   static readonly recipeServicePort = 'RCP_SRV_RECIPE_PORT';
+  static readonly shoppingServiceName = 'RCP_SRV_SHOPPING_NAME';
+  static readonly shoppingServicePort = 'RCP_SRV_SHOPPING_PORT'
   static readonly dbServiceName = 'RCP_SRV_DB_NAME';
   static readonly dbServicePort = 'RCP_SRV_DB_PORT';
   static readonly memcacheServiceName = 'RCP_SRV_MEMCACHE_NAME';

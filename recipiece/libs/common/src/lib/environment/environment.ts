@@ -79,9 +79,6 @@ export class Environment {
   static get AUTH_SERVICE_NAME(): string {
     return process.env[EnvironmentConstants.variables.authServiceName];
   }
-  static get AUTH_SERVICE_URI(): string {
-    return `http://${Environment.AUTH_SERVICE_NAME}:${Environment.AUTH_SERIVCE_PORT}`;
-  }
 
   static get RECIPE_SERIVCE_PORT(): number {
     return Number.parseInt(process.env[EnvironmentConstants.variables.recipeServicePort]);
@@ -89,14 +86,19 @@ export class Environment {
   static get RECIPE_SERVICE_NAME(): string {
     return process.env[EnvironmentConstants.variables.recipeServiceName];
   }
+
+  static get SHOPPING_SERVICE_PORT(): number {
+    return Number.parseInt(process.env[EnvironmentConstants.variables.shoppingServicePort]);
+  }
+  static get SHOPPING_SERVICE_NAME(): string {
+    return process.env[EnvironmentConstants.variables.shoppingServiceName];
+  }
+
   static get DB_SERIVCE_PORT(): number {
     return Number.parseInt(process.env[EnvironmentConstants.variables.dbServicePort]);
   }
   static get DB_SERVICE_NAME(): string {
     return process.env[EnvironmentConstants.variables.dbServiceName];
-  }
-  static get DB_SERVICE_URI(): string {
-    return `http://${Environment.DB_SERVICE_NAME}:${Environment.DB_SERIVCE_PORT}`;
   }
 
   static get MEMCACHE_SERIVCE_PORT(): number {
@@ -106,20 +108,12 @@ export class Environment {
     return process.env[EnvironmentConstants.variables.memcacheServiceName];
   }
 
-  static get MEMCACHE_SERVICE_URI(): string {
-    return `http://${Environment.MEMCACHE_SERVICE_NAME}:${Environment.MEMCACHE_SERIVCE_PORT}`;
-  }
-
   static get EMAIL_SERVICE_NAME(): string {
     return process.env[EnvironmentConstants.variables.emailServiceName];
   }
 
   static get EMAIL_SERVICE_PORT(): number {
     return Number.parseInt(process.env[EnvironmentConstants.variables.emailServicePort]);
-  }
-
-  static get EMAIL_SERVICE_URI(): string {
-    return `http://${Environment.EMAIL_SERVICE_NAME}:${Environment.EMAIL_SERVICE_PORT}`;
   }
 
   // internal user for handling service -> service requests

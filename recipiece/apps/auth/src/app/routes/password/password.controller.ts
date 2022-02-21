@@ -1,8 +1,17 @@
-import { Body, Controller, HttpCode, NotFoundException, Post, Req, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  NotFoundException,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { Utils } from '@recipiece/common';
 import { ForgotPasswordTokenService, SessionService, UserService } from '@recipiece/database';
 import { IForgotPasswordEmailData, PubsubService } from '@recipiece/memstore';
-import { AuthRequest } from '@recipiece/middleware';
+import { AuthenticationGuard, AuthRequest } from '@recipiece/middleware';
 import { randomUUID } from 'crypto';
 import { comparePasswords, encryptPassword } from '../../api';
 
@@ -59,6 +68,7 @@ export class PasswordController {
 
   @Post('reset')
   @HttpCode(204)
+  @UseGuards(AuthenticationGuard)
   public async resetKnownPassword(@Req() request: AuthRequest) {
     const { old, desired } = request.body;
     const user = request.user;

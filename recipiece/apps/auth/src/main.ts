@@ -7,6 +7,7 @@ async function bootstrap() {
   EnvironmentSniffer.load();
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.setGlobalPrefix('api');
   await app.listen(Environment.AUTH_SERIVCE_PORT);
   Logger.log(`Auth is listening on ${Environment.AUTH_SERIVCE_PORT}`)
 }

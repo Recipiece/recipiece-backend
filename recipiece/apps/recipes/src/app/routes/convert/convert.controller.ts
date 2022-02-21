@@ -1,10 +1,12 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
 import { IRecipeIngredient } from '@recipiece/database';
-import { ConverterApiService, UnknownUnitException } from '../../api';
+import { AuthenticationGuard } from '@recipiece/middleware';
 import Fraction from 'fraction.js';
+import { ConverterApiService, UnknownUnitException } from '../../api';
 
 @Controller('convert')
+@UseGuards(AuthenticationGuard)
 export class ConvertController {
   constructor(private converterApi: ConverterApiService) {}
 

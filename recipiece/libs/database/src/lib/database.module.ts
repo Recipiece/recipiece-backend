@@ -21,6 +21,8 @@ import { Session, SessionSchema } from './model/session';
 import { SessionService } from './model/session/session.service';
 import { StagedUser, StagedUserSchema, StagedUserService } from './model/staged-user';
 import { User, UserSchema, UserService } from './model/user';
+import { ShoppingList, ShoppingListSchema, ShoppingListService } from './model/shopping-list';
+import { UserPermissions, UserPermissionsSchema, UserPermissionsService } from './model/user-permissions';
 
 EnvironmentSniffer.load();
 
@@ -51,6 +53,8 @@ const uri = `mongodb://${host}:${port}`;
       { name: Measure.name, schema: MeasureSchema },
       { name: CommonIngredient.name, schema: CommonIngredientSchema },
       { name: CommonIngredientName.name, schema: CommonIngredientNameSchema },
+      { name: ShoppingList.name, schema: ShoppingListSchema },
+      { name: UserPermissions.name, schema: UserPermissionsSchema}
     ]),
   ],
   providers: [
@@ -63,6 +67,8 @@ const uri = `mongodb://${host}:${port}`;
     MeasureService,
     CommonIngredientService,
     CommonIngredientNameService,
+    ShoppingListService,
+    UserPermissionsService,
   ],
   exports: [
     MongooseModule,
@@ -75,6 +81,8 @@ const uri = `mongodb://${host}:${port}`;
     MeasureService,
     CommonIngredientService,
     CommonIngredientNameService,
+    ShoppingListService,
+    UserPermissionsService,
   ],
 })
 export class DatabaseModule {}

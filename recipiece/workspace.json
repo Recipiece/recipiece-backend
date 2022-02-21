@@ -7,6 +7,7 @@
     "email": "apps/email",
     "memstore": "libs/memstore",
     "middleware": "libs/middleware",
-    "recipes": "apps/recipes"
+    "recipes": "apps/recipes",
+    "shopping": "apps/shopping"
   }
 }

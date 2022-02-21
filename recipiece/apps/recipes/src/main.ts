@@ -7,6 +7,7 @@ async function bootstrap() {
   EnvironmentSniffer.load();
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.setGlobalPrefix('api');
   await app.listen(Environment.RECIPE_SERIVCE_PORT);
   Logger.log(`Recipe service is listening on port ${Environment.RECIPE_SERIVCE_PORT}`);
 }

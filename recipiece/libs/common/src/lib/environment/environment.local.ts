@@ -25,6 +25,9 @@ export class LocalEnvironment {
     process.env[EnvironmentConstants.variables.recipeServicePort] = '8802';
     process.env[EnvironmentConstants.variables.recipeServiceName] = '127.0.0.1';
 
+    process.env[EnvironmentConstants.variables.shoppingServicePort] = '8803';
+    process.env[EnvironmentConstants.variables.shoppingServiceName] = '127.0.0.1';
+
     process.env[EnvironmentConstants.variables.emailServicePort] = '7801';
     process.env[EnvironmentConstants.variables.emailServiceName] = '127.0.0.1';
   }

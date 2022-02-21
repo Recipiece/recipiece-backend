@@ -9,10 +9,11 @@ import {
   Put,
   Req,
   UnauthorizedException,
+  UseGuards
 } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
 import { IRecipe, RecipeService } from '@recipiece/database';
-import { AuthRequest } from '@recipiece/middleware';
+import { AuthenticationGuard, AuthRequest } from '@recipiece/middleware';
 import { RecipeQueryHelper } from '../../api';
 
 @Controller('recipes')
@@ -21,6 +22,7 @@ export class RecipesController {
 
   @Post('')
   @HttpCode(201)
+  @UseGuards(AuthenticationGuard)
   public async createRecipe(@Body() body: Partial<IRecipe>) {
     const recipe = await this.recipeService.create(body);
     return recipe.asResponse();
@@ -28,6 +30,7 @@ export class RecipesController {
 
   @Put(':recipeId')
   @HttpCode(200)
+  @UseGuards(AuthenticationGuard)
   public async updateRecipe(@Req() request: AuthRequest) {
     const { recipeId } = request.params;
     const updateBody: Partial<IRecipe> = request.body;
@@ -45,6 +48,7 @@ export class RecipesController {
 
   @Delete(':recipeId')
   @HttpCode(204)
+  @UseGuards(AuthenticationGuard)
   public async deleteRecipe(@Req() request: AuthRequest) {
     const { recipeId } = request.params;
     const recipe = await this.recipeService.findById(recipeId);
@@ -73,6 +77,7 @@ export class RecipesController {
 
   @Get('list/:userId')
   @HttpCode(200)
+  @UseGuards(AuthenticationGuard)
   public async listRecipesForUser(@Req() request: AuthRequest) {
     const owner = request.params.userId;
 

@@ -7,11 +7,12 @@ import {
   NotImplementedException,
   Post,
   Req,
-  UnauthorizedException
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
 import { SessionService, UserService } from '@recipiece/database';
-import { AuthRequest } from '@recipiece/middleware';
+import { AuthorizationGuard, AuthRequest } from '@recipiece/middleware';
 import { comparePasswords } from '../../api';
 
 @Controller('users')
@@ -50,11 +51,13 @@ export class UsersController {
 
   @Post('logout')
   @HttpCode(204)
+  @UseGuards(AuthorizationGuard)
   public async logoutUser(@Req() request: AuthRequest) {
     await this.sessionService.delete(request.session.id);
   }
 
   @Delete('delete-account')
+  @UseGuards(AuthorizationGuard)
   public async requestAccountDeletion() {
     throw new NotImplementedException();
   }

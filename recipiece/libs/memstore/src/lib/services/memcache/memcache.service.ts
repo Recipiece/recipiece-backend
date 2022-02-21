@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Environment, EnvironmentSniffer, Utils } from '@recipiece/common';
 import Cryo from 'cryo';
-import redis from 'redis';
+import {createClient, RedisClientType} from 'redis';
 
 @Injectable()
 export class MemcacheService {
-  private readonly client: redis.RedisClientType<any, any>;
+  private readonly client: RedisClientType<any, any>;
   private connected: boolean;
 
   constructor() {
     EnvironmentSniffer.load();
-    this.client = redis.createClient({
+    this.client = createClient({
       socket: {
         host: Environment.MEMCACHE_HOST,
         port: Environment.MEMCACHE_PORT,
