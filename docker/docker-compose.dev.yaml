@@ -27,49 +27,49 @@ services:
     command: --quiet
     ports:
       - 27017:27017
-  rcp-memcache:
-    container_name: "recipiece-memcache"
-    build:
-      context: ../services
-      dockerfile: ../docker/services/dev/Dockerfile.memcache
-    environment:
-      RCP_ENV_NAME: docker
-    volumes:
-      - ../services/memcache/src/:/rcp-memcache/memcache/src/
-      - ../services/node-common/src/:/rcp-memcache/node-common/src/
-    ports:
-      - "7802:7802"
-  rcp-email:
-    container_name: "recipiece-email"
-    build:
-      context: ../services
-      dockerfile: ../docker/services/dev/Dockerfile.email
-    environment:
-      RCP_ENV_NAME: docker
-    ports:
-      - "7803:7803"
-    volumes:
-      - ../services/auth/src:/rcp-email/auth/src
-      - ../services/node-common/src/:/rcp-email/node-common/src/
-  rcp-auth:
-    container_name: "recipiece-auth"
-    build:
-      context: ../services
-      dockerfile: ../docker/services/dev/Dockerfile.auth
-    environment:
-      RCP_ENV_NAME: docker
-    ports:
-      - "8801:8801"
-    volumes:
-      - ../services/auth/src:/rcp-auth/auth/src
-      - ../services/node-common/src/:/rcp-auth/node-common/src/
-  rcp-recipes:
-    container_name: "recipiece-recipes"
-    build:
-      context: ../services
-      dockerfile: ../docker/services/dev/Dockerfile.recipes
-    ports:
-      - "8802:8802"
-    volumes:
-      - ../services/recipes/src/:/rcp-recipes/recipes/src/
-      - ../services/node-common/src/:/rcp-recipes/node-common/src/
+  # rcp-memcache:
+  #   container_name: "recipiece-memcache"
+  #   build:
+  #     context: ../services
+  #     dockerfile: ../docker/services/dev/Dockerfile.memcache
+  #   environment:
+  #     RCP_ENV_NAME: docker
+  #   volumes:
+  #     - ../services/memcache/src/:/rcp-memcache/memcache/src/
+  #     - ../services/node-common/src/:/rcp-memcache/node-common/src/
+  #   ports:
+  #     - "7802:7802"
+  # rcp-email:
+  #   container_name: "recipiece-email"
+  #   build:
+  #     context: ../services
+  #     dockerfile: ../docker/services/dev/Dockerfile.email
+  #   environment:
+  #     RCP_ENV_NAME: docker
+  #   ports:
+  #     - "7803:7803"
+  #   volumes:
+  #     - ../services/auth/src:/rcp-email/auth/src
+  #     - ../services/node-common/src/:/rcp-email/node-common/src/
+  # rcp-auth:
+  #   container_name: "recipiece-auth"
+  #   build:
+  #     context: ../services
+  #     dockerfile: ../docker/services/dev/Dockerfile.auth
+  #   environment:
+  #     RCP_ENV_NAME: docker
+  #   ports:
+  #     - "8801:8801"
+  #   volumes:
+  #     - ../services/auth/src:/rcp-auth/auth/src
+  #     - ../services/node-common/src/:/rcp-auth/node-common/src/
+  # rcp-recipes:
+  #   container_name: "recipiece-recipes"
+  #   build:
+  #     context: ../services
+  #     dockerfile: ../docker/services/dev/Dockerfile.recipes
+  #   ports:
+  #     - "8802:8802"
+  #   volumes:
+  #     - ../services/recipes/src/:/rcp-recipes/recipes/src/
+  #     - ../services/node-common/src/:/rcp-recipes/node-common/src/

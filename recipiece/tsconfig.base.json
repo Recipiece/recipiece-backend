@@ -1,0 +1,26 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@recipiece/common": ["libs/common/src/index.ts"],
+      "@recipiece/database": ["libs/database/src/index.ts"],
+      "@recipiece/memstore": ["libs/memstore/src/index.ts"],
+      "@recipiece/middleware": ["libs/middleware/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

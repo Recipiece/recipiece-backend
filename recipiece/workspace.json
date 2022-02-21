@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "projects": {
+    "auth": "apps/auth",
+    "common": "libs/common",
+    "database": "libs/database",
+    "email": "apps/email",
+    "memstore": "libs/memstore",
+    "middleware": "libs/middleware",
+    "recipes": "apps/recipes"
+  }
+}
