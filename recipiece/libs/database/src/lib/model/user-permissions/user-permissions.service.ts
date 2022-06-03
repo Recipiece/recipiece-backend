@@ -1,12 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ModelService } from '../model-service';
-import { UserPermissions, UserPermissionsDocument } from './user-permissions.schema';
+import { UserPermissions } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
-export class UserPermissionsService extends ModelService<UserPermissionsDocument, UserPermissions> {
-  constructor(@InjectModel(UserPermissions.name) model: Model<UserPermissionsDocument>) {
-    super(model);
+export class UserPermissionsService {
+  constructor(private prisma: PrismaService) {}
+
+  public async getForUser(owner: number): Promise<UserPermissions> {
+    return await this.prisma.userPermissions.findUnique({
+      where: {
+        owner_id: owner,
+      },
+    });
+  }
+
+  public create(owner: number, model: Partial<UserPermissions>): Promise<UserPermissions> {
+    return this.prisma.userPermissions.create({
+      data: {
+        owner_id: owner,
+        level: model.level,
+      },
+    });
+  }
+
+  public async update(id: number, model: Partial<UserPermissions>): Promise<UserPermissions> {
+    return await this.prisma.userPermissions.update({
+      where: {
+        id: id,
+      },
+      data: {
+        level: model.level,
+      },
+    });
   }
 }

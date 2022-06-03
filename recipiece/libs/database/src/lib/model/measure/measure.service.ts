@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ModelService } from '../model-service';
-import { Measure, MeasureDocument } from './measure.schema';
+import { Measure } from '@prisma/client';
+import { PrismaService } from '../../prisma';
 
 @Injectable()
-export class MeasureService extends ModelService<MeasureDocument, Measure> {
-  constructor(@InjectModel(Measure.name) model: Model<MeasureDocument>) {
-    super(model);
+export class MeasureService {
+  constructor(private prisma: PrismaService) {}
+
+  public async list(): Promise<Measure[]> {
+    return this.prisma.measure.findMany();
   }
 }

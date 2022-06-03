@@ -12,50 +12,49 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
-import { IRecipe, RecipeService } from '@recipiece/database';
+import { Recipe, RecipeService } from '@recipiece/database';
 import { AuthenticationGuard, AuthRequest } from '@recipiece/middleware';
-import { RecipeQueryHelper } from '../../api';
+import { getCursor, RecipeQuery } from '../../api';
 
 @Controller('recipes')
 export class RecipesController {
-  constructor(private recipeQueryHelper: RecipeQueryHelper, private recipeService: RecipeService) {}
+  constructor(private recipeService: RecipeService) {}
 
   @Post('')
   @HttpCode(201)
   @UseGuards(AuthenticationGuard)
-  public async createRecipe(@Body() body: Partial<IRecipe>) {
-    const recipe = await this.recipeService.create(body);
-    return recipe.asResponse();
+  public async createRecipe(@Req() request: AuthRequest, @Body() body: Partial<Recipe>) {
+    const recipe = await this.recipeService.create(request.user.id, body);
+    return recipe;
   }
 
   @Put(':recipeId')
   @HttpCode(200)
   @UseGuards(AuthenticationGuard)
   public async updateRecipe(@Req() request: AuthRequest) {
-    const { recipeId } = request.params;
-    const updateBody: Partial<IRecipe> = request.body;
+    const recipeId = +request.params.recipeId;
+    const updateBody: Partial<Recipe> = request.body;
 
-    const recipe = await this.recipeService.findById(recipeId);
+    const recipe = await this.recipeService.getById(recipeId);
     if (Utils.nou(recipe)) {
-      throw new NotFoundException(undefined, `Recipe with id ${recipeId} not found`);
+      throw new NotFoundException(`Recipe ${recipeId} not found`);
     }
-    if (recipe.owner !== request.user.id) {
+    if (recipe.owner_id !== request.user.id) {
       throw new UnauthorizedException();
     }
-    const updated = await this.recipeService.update(recipeId, updateBody);
-    return updated.asResponse();
+    return await this.recipeService.update(recipeId, updateBody);
   }
 
   @Delete(':recipeId')
   @HttpCode(204)
   @UseGuards(AuthenticationGuard)
   public async deleteRecipe(@Req() request: AuthRequest) {
-    const { recipeId } = request.params;
-    const recipe = await this.recipeService.findById(recipeId);
+    const recipeId = +request.params.recipeId;
+    const recipe = await this.recipeService.getById(recipeId);
     if (Utils.nou(recipe)) {
-      throw new NotFoundException(undefined, `Recipe with id ${recipeId} not found`);
+      throw new NotFoundException(`Recipe ${recipeId} not found`);
     }
-    if (recipe.owner !== request.user.id) {
+    if (recipe.owner_id !== request.user.id) {
       throw new UnauthorizedException();
     }
     await this.recipeService.delete(recipe.id);
@@ -64,43 +63,32 @@ export class RecipesController {
   @Get(':recipeId')
   @HttpCode(200)
   public async getRecipeById(@Req() request: AuthRequest) {
-    const { recipeId } = request.params;
-    const recipe = await this.recipeService.findById(recipeId);
+    const recipeId = +request.params.recipeId;
+    const recipe = await this.recipeService.getById(recipeId);
     if (Utils.nou(recipe)) {
       throw new NotFoundException(undefined, `Recipe with id ${recipeId} not found`);
     }
-    if (recipe.private && recipe.owner !== request.user?.id) {
+    if (recipe.private && recipe.owner_id !== request.user?.id) {
       throw new UnauthorizedException();
     }
-    return recipe.asResponse();
+    return recipe;
   }
 
   @Get('list/:userId')
   @HttpCode(200)
   @UseGuards(AuthenticationGuard)
   public async listRecipesForUser(@Req() request: AuthRequest) {
-    const owner = request.params.userId;
+    const owner = +request.params.userId;
 
     if (request.user.id !== owner) {
       throw new UnauthorizedException();
     }
 
-    let requestQuery: any = {};
+    const whereQuery = new RecipeQuery().fromRequest(request);
 
-    // only query on certain things
-    requestQuery.owner = request.user.id;
-    requestQuery.private = owner === request.user.id;
-    requestQuery = this.recipeQueryHelper.buildNameQuery(requestQuery, request);
-    requestQuery = this.recipeQueryHelper.buildTagsQuery(requestQuery, request);
-    requestQuery = this.recipeQueryHelper.buildIngredientsQuery(requestQuery, request);
-
-    const page = await this.recipeService.findPage(requestQuery, +(request.query.page || '1'));
-    const docs = page.docs.forEach((d) => d.asResponse());
-
+    const recipes = await this.recipeService.list(getCursor(request), whereQuery, {name: 'asc'});
     return {
-      data: docs,
-      more: page.hasNextPage,
-      page: page.nextPage,
+      data: recipes,
     };
   }
 }

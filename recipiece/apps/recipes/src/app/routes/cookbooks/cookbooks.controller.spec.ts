@@ -1,18 +1,38 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CoobooksController } from './cookbooks.controller';
+import { CookbooksController } from './cookbooks.controller';
 
-describe('CoobooksController', () => {
-  let controller: CoobooksController;
+describe('CoobookController', () => {
+  let controller: CookbooksController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CoobooksController],
+      controllers: [CookbooksController],
     }).compile();
 
-    controller = module.get<CoobooksController>(CoobooksController);
+    controller = module.get<CookbooksController>(CookbooksController);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  describe('Create', () => {
+
+  })
+
+  describe('Update', () => {
+
+  })
+
+  describe('Delete', () => {
+
+  })
+
+  describe('List', () => {
+
+  })
+
+  describe('List Recipes', () => {
+
+  })
 });

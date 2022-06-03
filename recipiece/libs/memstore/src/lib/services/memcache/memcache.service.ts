@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Environment, EnvironmentSniffer, Utils } from '@recipiece/common';
+import { Utils } from '@recipiece/common';
 import Cryo from 'cryo';
-import {createClient, RedisClientType} from 'redis';
+import { createClient, RedisClientType } from 'redis';
 
 @Injectable()
 export class MemcacheService {
@@ -9,11 +9,10 @@ export class MemcacheService {
   private connected: boolean;
 
   constructor() {
-    EnvironmentSniffer.load();
     this.client = createClient({
       socket: {
-        host: Environment.MEMCACHE_HOST,
-        port: Environment.MEMCACHE_PORT,
+        host: process.env.RCP_REDIS_HOST,
+        port: +process.env.RCP_REDIS_PORT,
       },
     });
     this.connected = false;
@@ -38,7 +37,7 @@ export class MemcacheService {
     }
   }
 
-  public async mset<T>(key: string, entity: T, expiry = Environment.MEMCACHE_EXP) {
+  public async mset<T>(key: string, entity: T, expiry = +process.env.MEMCACHE_EXP) {
     await this.connect();
     const nsKey = this.getNsKey(key);
     const serialized = Cryo.stringify(entity);

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { RecipeIngredient } from '@prisma/client';
 import { Utils } from '@recipiece/common';
-import { IRecipeIngredient } from '@recipiece/database';
 import { AuthenticationGuard } from '@recipiece/middleware';
 import Fraction from 'fraction.js';
 import { ConverterApiService, UnknownUnitException } from '../../api';
@@ -12,7 +12,7 @@ export class ConvertController {
 
   @Post('ingredient')
   @HttpCode(200)
-  public async convertIngredient(@Body() body: { ingredient: IRecipeIngredient; to: string }) {
+  public async convertIngredient(@Body() body: { ingredient: RecipeIngredient; to: string }) {
     const { ingredient, to: desiredUnitName } = body;
 
     if (Utils.nou(ingredient.unit)) {

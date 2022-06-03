@@ -1,0 +1,1 @@
+INSERT INTO "CommonIngredient" (names, v_unit, v_amount, w_unit, w_amount)

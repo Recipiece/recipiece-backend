@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Environment, EnvironmentSniffer } from '@recipiece/common';
 import { randomUUID } from 'crypto';
 import NRP from 'node-redis-pubsub';
 import { PubsubMessage } from './message';
+import 'dotenv/config';
 
 @Injectable()
 export class PubsubService {
@@ -10,11 +10,10 @@ export class PubsubService {
   private subscriptions: { [subId: string]: any };
 
   constructor() {
-    EnvironmentSniffer.load();
     this.subscriptions = {};
     this.psClient = NRP({
-      host: Environment.MEMCACHE_HOST,
-      port: Environment.MEMCACHE_PORT,
+      host: process.env.RCP_REDIS_HOST,
+      port: +process.env.RCP_REDIS_PORT,
     });
   }
 

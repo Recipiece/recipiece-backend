@@ -1,0 +1,15 @@
+services:
+  postgresql:
+    container_name: recipiece-test-db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: recipiece
+      POSTGRES_PASSWORD: test1234
+      POSTGRES_DB: recipiece-test
+    ports:
+      - 5433:5432
+  memcachedb:
+    image: redis:latest
+    ports:
+      - 6380:6379

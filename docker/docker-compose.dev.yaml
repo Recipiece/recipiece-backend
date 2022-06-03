@@ -4,72 +4,113 @@ services:
   nginx:
     image: nginx:latest
     volumes:
-      - ./services/dev/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - 8800:8800
+    networks:
+      - bridgerton
+    depends_on:
+      - recipiece-auth
+      - recipiece-recipes
+      - recipiece-shopping
   memcachedb:
     image: redis:latest
     ports:
       - 6379:6379
-  mongodb:
-    image: mongo:latest
-    volumes:
-      - ../data/mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
-      - ../data/mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
-      - ../data/mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
-      # make sure this one runs last
-      - ../data/mongo-dev.js:/docker-entrypoint-initdb.d/mongo-zed.js:ro
+    networks:
+      - bridgerton
+  postgresql:
+    image: postgres
+    restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: recipiece
-      MONGO_INITDB_ROOT_PASSWORD: test1234
-      MONGO_INITDB_DATABASE: recipiece
-      RCP_ENV_NAME: docker
-    command: --quiet
+      POSTGRES_USER: recipiece
+      POSTGRES_PASSWORD: test1234
+      POSTGRES_DB: recipiece
     ports:
-      - 27017:27017
-  # rcp-memcache:
-  #   container_name: "recipiece-memcache"
-  #   build:
-  #     context: ../services
-  #     dockerfile: ../docker/services/dev/Dockerfile.memcache
+      - 5432:5432
+    networks:
+      - bridgerton
+  # mongodb:
+  #   image: mongo:latest
+  #   volumes:
+  #     - ../data/mongo.js:/docker-entrypoint-initdb.d/mongo.js:ro
+  #     - ../data/mongo-ingredients.js:/docker-entrypoint-initdb.d/mongo-ingredients.js:ro
+  #     - ../data/mongo-measures.js:/docker-entrypoint-initdb.d/mongo-measures.js:ro
+  #     # make sure this one runs last
+  #     - ../data/mongo-dev.js:/docker-entrypoint-initdb.d/mongo-zed.js:ro
   #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: recipiece
+  #     MONGO_INITDB_ROOT_PASSWORD: test1234
+  #     MONGO_INITDB_DATABASE: recipiece
   #     RCP_ENV_NAME: docker
-  #   volumes:
-  #     - ../services/memcache/src/:/rcp-memcache/memcache/src/
-  #     - ../services/node-common/src/:/rcp-memcache/node-common/src/
+  #   command: --quiet
   #   ports:
-  #     - "7802:7802"
-  # rcp-email:
-  #   container_name: "recipiece-email"
-  #   build:
-  #     context: ../services
-  #     dockerfile: ../docker/services/dev/Dockerfile.email
-  #   environment:
-  #     RCP_ENV_NAME: docker
-  #   ports:
-  #     - "7803:7803"
-  #   volumes:
-  #     - ../services/auth/src:/rcp-email/auth/src
-  #     - ../services/node-common/src/:/rcp-email/node-common/src/
-  # rcp-auth:
-  #   container_name: "recipiece-auth"
-  #   build:
-  #     context: ../services
-  #     dockerfile: ../docker/services/dev/Dockerfile.auth
-  #   environment:
-  #     RCP_ENV_NAME: docker
-  #   ports:
-  #     - "8801:8801"
-  #   volumes:
-  #     - ../services/auth/src:/rcp-auth/auth/src
-  #     - ../services/node-common/src/:/rcp-auth/node-common/src/
-  # rcp-recipes:
-  #   container_name: "recipiece-recipes"
-  #   build:
-  #     context: ../services
-  #     dockerfile: ../docker/services/dev/Dockerfile.recipes
-  #   ports:
-  #     - "8802:8802"
-  #   volumes:
-  #     - ../services/recipes/src/:/rcp-recipes/recipes/src/
-  #     - ../services/node-common/src/:/rcp-recipes/node-common/src/
+  #     - 27017:27017
+  #   networks:
+  #     - bridgerton
+  recipiece-email:
+    container_name: recipiece-email
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.dev
+    environment:
+      RCP_ENV_NAME: docker
+    ports:
+      - "7801:7801"
+    entrypoint: nx run email:serve
+    volumes:
+      - ../recipiece/:/recipiece
+      - /recipiece/node_modules
+      - /recipiece/dist
+    networks:
+      - bridgerton
+  recipiece-auth:
+    container_name: recipiece-auth
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.dev
+    environment:
+      RCP_ENV_NAME: docker
+    ports:
+      - "8801:8801"
+    entrypoint: nx run auth:serve
+    volumes:
+      - ../recipiece/:/recipiece
+      - /recipiece/node_modules
+      - /recipiece/dist
+    networks:
+      - bridgerton
+  recipiece-recipes:
+    container_name: recipiece-recipes
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.dev
+    environment:
+      RCP_ENV_NAME: docker
+    ports:
+      - "8802:8802"
+    entrypoint: nx run recipes:serve
+    volumes:
+      - ../recipiece/:/recipiece
+      - /recipiece/node_modules
+      - /recipiece/dist
+    networks:
+      - bridgerton
+  recipiece-shopping:
+    container_name: recipiece-shopping
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.dev
+    environment:
+      RCP_ENV_NAME: docker
+    ports:
+      - "8803:8803"
+    entrypoint: nx run shopping:serve
+    volumes:
+      - ../recipiece/:/recipiece
+      - /recipiece/node_modules
+      - /recipiece/dist
+    networks:
+      - bridgerton
+networks:
+  bridgerton:

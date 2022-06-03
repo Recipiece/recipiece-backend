@@ -1,12 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ModelService } from '../model-service';
-import { CommonIngredient, CommonIngredientDocument } from './common-ingredient.schema';
+import { CommonIngredient, Prisma } from '@prisma/client';
+import { PrismaService } from '../../prisma';
 
 @Injectable()
-export class CommonIngredientService extends ModelService<CommonIngredientDocument, CommonIngredient> {
-  constructor(@InjectModel(CommonIngredient.name) model: Model<CommonIngredientDocument>) {
-    super(model);
+export class CommonIngredientService {
+  constructor(private prisma: PrismaService) {}
+
+  public async list(query?: Prisma.CommonIngredientWhereInput): Promise<CommonIngredient[]> {
+    return this.prisma.commonIngredient.findMany({
+      where: { ...(query || {}) },
+    });
+  }
+
+  public async listNames(): Promise<string[]> {
+    const ingNamesOnly = await this.prisma.commonIngredient.findMany({
+      select: {
+        names: true,
+      },
+    });
+    return ingNamesOnly.map((i) => i.names[0]);
   }
 }

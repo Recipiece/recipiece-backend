@@ -1,0 +1,7 @@
+FROM node
+
+WORKDIR /recipiece
+
+COPY recipiece .
+
+RUN npm i -g nx && npm i

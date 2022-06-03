@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserPermissionsLevel } from '@recipiece/database';
+import { UserPermissions } from '@recipiece/database';
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AuthorizationGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const permissions = this.reflector.get<UserPermissionsLevel[]>('permissions', context.getHandler());
+    const permissions = this.reflector.get<UserPermissions[]>('permissions', context.getHandler());
     if (!permissions) {
       return true;
     }

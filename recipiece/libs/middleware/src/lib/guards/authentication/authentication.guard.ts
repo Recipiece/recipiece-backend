@@ -1,10 +1,10 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
-import { Session, User, UserService } from '@recipiece/database';
+import { Session, SessionService, User, UserService } from '@recipiece/database';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private sessionService: SessionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -20,11 +20,11 @@ export class AuthenticationGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     const rawToken = authHeader.replace('Bearer', '').trim();
-    const session = await Session.deserialize(rawToken);
+    const session = await this.sessionService.deserialize(rawToken);
     if (Utils.nou(session)) {
       throw new UnauthorizedException();
     }
-    const user = await this.userService.findById(session.owner);
+    const user = await this.userService.getById(session.owner_id);
     if (Utils.nou(user)) {
       throw new UnauthorizedException();
     }

@@ -1,88 +1,46 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Environment, EnvironmentSniffer } from '@recipiece/common';
-import {
-  CommonIngredient,
-  CommonIngredientName,
-  CommonIngredientNameSchema,
-  CommonIngredientNameService,
-  CommonIngredientSchema,
-  CommonIngredientService,
-} from './model/common-ingredient';
-import { Cookbook, CookbookSchema, CookbookService } from './model/cookbook';
-import {
-  ForgotPasswordToken,
-  ForgotPasswordTokenSchema,
-  ForgotPasswordTokenService,
-} from './model/forgot-password-token';
-import { Measure, MeasureSchema, MeasureService } from './model/measure';
-import { Recipe, RecipeSchema, RecipeService } from './model/recipe';
-import { Session, SessionSchema } from './model/session';
+import { CommonIngredientService } from './model/common-ingredient/common-ingredient.service';
+import { CookbookService } from './model/cookbook/cookbook.service';
+import { ForgotPasswordService } from './model/forgot-password/forgot-password.service';
+import { MeasureService } from './model/measure/measure.service';
+import { RecipeService } from './model/recipe/recipe.service';
 import { SessionService } from './model/session/session.service';
-import { StagedUser, StagedUserSchema, StagedUserService } from './model/staged-user';
-import { User, UserSchema, UserService } from './model/user';
-import { ShoppingList, ShoppingListSchema, ShoppingListService } from './model/shopping-list';
-import { UserPermissions, UserPermissionsSchema, UserPermissionsService } from './model/user-permissions';
-
-EnvironmentSniffer.load();
-
-const username = Environment.DB_USER;
-const password = Environment.DB_PASSWORD;
-const host = Environment.DB_HOST;
-const port = Environment.DB_PORT;
-const dbName = Environment.DB_NAME;
-const uri = `mongodb://${host}:${port}`;
+import { ShoppingListService } from './model/shopping-list/shopping-list.service';
+import { StagedUserService } from './model/staged-user/staged-user.service';
+import { UserLoginService } from './model/user-login/user-login.service';
+import { UserPermissionsService } from './model/user-permissions/user-permissions.service';
+import { UserService } from './model/user/user.service';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   controllers: [],
-  imports: [
-    MongooseModule.forRoot(uri, {
-      auth: {
-        username: username,
-        password: password,
-      },
-      dbName: dbName,
-    }),
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Recipe.name, schema: RecipeSchema },
-      { name: StagedUser.name, schema: StagedUserSchema },
-      { name: Session.name, schema: SessionSchema },
-      { name: ForgotPasswordToken.name, schema: ForgotPasswordTokenSchema },
-      { name: Cookbook.name, schema: CookbookSchema },
-      { name: Measure.name, schema: MeasureSchema },
-      { name: CommonIngredient.name, schema: CommonIngredientSchema },
-      { name: CommonIngredientName.name, schema: CommonIngredientNameSchema },
-      { name: ShoppingList.name, schema: ShoppingListSchema },
-      { name: UserPermissions.name, schema: UserPermissionsSchema}
-    ]),
-  ],
   providers: [
     UserService,
+    PrismaService,
     RecipeService,
+    CookbookService,
+    ShoppingListService,
+    UserLoginService,
+    UserPermissionsService,
     StagedUserService,
     SessionService,
-    ForgotPasswordTokenService,
-    CookbookService,
+    ForgotPasswordService,
     MeasureService,
     CommonIngredientService,
-    CommonIngredientNameService,
-    ShoppingListService,
-    UserPermissionsService,
   ],
   exports: [
-    MongooseModule,
     UserService,
     RecipeService,
+    CookbookService,
+    ShoppingListService,
+    UserLoginService,
+    UserPermissionsService,
     StagedUserService,
     SessionService,
-    ForgotPasswordTokenService,
-    CookbookService,
+    ForgotPasswordService,
     MeasureService,
     CommonIngredientService,
-    CommonIngredientNameService,
-    ShoppingListService,
-    UserPermissionsService,
+    PrismaService,
   ],
 })
 export class DatabaseModule {}

@@ -1,63 +1,63 @@
 import {
   Body,
   Controller,
-  Delete,
-  HttpCode,
-  NotFoundException,
-  NotImplementedException,
+  Delete, ForbiddenException, HttpCode, NotImplementedException,
   Post,
-  Req,
-  UnauthorizedException,
-  UseGuards
+  Req, UseGuards
 } from '@nestjs/common';
 import { Utils } from '@recipiece/common';
-import { SessionService, UserService } from '@recipiece/database';
-import { AuthorizationGuard, AuthRequest } from '@recipiece/middleware';
+import { SessionService, UserLoginService, UserService } from '@recipiece/database';
+import { AuthenticationGuard, AuthRequest } from '@recipiece/middleware';
 import { comparePasswords } from '../../api';
 
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UserService, private sessionService: SessionService) {}
+  constructor(
+    private userService: UserService, 
+    private userLoginService: UserLoginService,
+    private sessionService: SessionService
+  ) {}
 
   @Post('login')
   @HttpCode(200)
   public async loginUser(@Body() body: { name: string; password: string }) {
     const { name, password } = body;
-    const user = await this.userService.findOne({
-      $or: [{ email: name }, { username: name }],
-    });
+    const user = await this.userService.getByEmail(name);
+
+    if(Utils.nou(user)) {
+      throw new ForbiddenException();
+    }
+
+    const userLogin = await this.userLoginService.getForUser(user.id);
 
     if (!Utils.nou(user)) {
-      const expectedPassword = user.password;
-      const expectedSalt = user.salt;
-      const expectedNonce = user.nonce;
+      const expectedPassword = userLogin.password_hash;
+      const expectedSalt = userLogin.salt;
+      const expectedNonce = userLogin.nonce;
       const passwordsMatch = await comparePasswords(password, expectedPassword, expectedSalt, expectedNonce);
       if (passwordsMatch) {
-        const session = await this.sessionService.save({
-          owner: user.id,
-        });
-        await this.sessionService.save(session);
+        const session = await this.sessionService.create(user.id);
         return {
-          token: session.serialize(),
-          user: user.asResponse(),
+          token: this.sessionService.serialize(session),
+          user: user,
         };
       } else {
-        throw new UnauthorizedException();
+        throw new ForbiddenException();
       }
     } else {
-      throw new NotFoundException(`Username or email ${name} does not exist.`);
+      throw new ForbiddenException();
     }
   }
 
   @Post('logout')
   @HttpCode(204)
-  @UseGuards(AuthorizationGuard)
+  @UseGuards(AuthenticationGuard)
   public async logoutUser(@Req() request: AuthRequest) {
     await this.sessionService.delete(request.session.id);
   }
 
   @Delete('delete-account')
-  @UseGuards(AuthorizationGuard)
+  @UseGuards(AuthenticationGuard)
   public async requestAccountDeletion() {
     throw new NotImplementedException();
   }

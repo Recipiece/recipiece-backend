@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["filterJson", "extendedIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     Int                  @id @default(autoincrement())
+  created_at             DateTime             @default(now())
+  email                  String               @unique
+  login                  UserLogin?
+  sessions               Session[]
+  recipes                Recipe[]
+  preferences            Json
+  permissions            UserPermissions?
+  lists                  ShoppingList[]
+  shopping_list_accesses ShoppingListAccess[]
+  cookbooks              Cookbook[]
+}
+
+model UserLogin {
+  id            Int    @id @default(autoincrement())
+  password_hash String
+  salt          String
+  nonce         String
+  owner_id      Int    @unique
+  owner         User   @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+}
+
+model UserPermissions {
+  id       Int    @id @default(autoincrement())
+  owner_id Int    @unique
+  owner    User   @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  level    String
+}
+
+model StagedUser {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  created_at       DateTime @default(now())
+  password_hash    String
+  salt             String
+  nonce            String
+  token            String   @unique
+  permission_level String
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  token      String
+  owner_id   Int
+  owner      User     @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+}
+
+model Recipe {
+  id                          Int                        @id @default(autoincrement())
+  created_at                  DateTime                   @default(now())
+  owner_id                    Int
+  owner                       User                       @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  name                        String
+  description                 String
+  sections                    RecipeSection[]
+  tags                        String[]
+  advanced_config             Json?
+  private                     Boolean
+  recipe_cookbook_memberships RecipeCookbookMembership[]
+}
+
+model RecipeSection {
+  id          Int                @id @default(autoincrement())
+  name        String
+  ingredients RecipeIngredient[]
+  steps       RecipeStep[]
+  recipe_id   Int
+  recipe      Recipe             @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+}
+
+model RecipeIngredient {
+  id                Int            @id @default(autoincrement())
+  recipe_section    RecipeSection? @relation(fields: [recipe_section_id], references: [id], onDelete: Cascade)
+  recipe_section_id Int
+  amount            String
+  unit              String?
+  name              String
+
+  @@index([name])
+}
+
+model RecipeStep {
+  id                Int            @id @default(autoincrement())
+  recipe_section    RecipeSection? @relation(fields: [recipe_section_id], references: [id], onDelete: Cascade)
+  recipe_section_id Int
+  content           String
+  time_ms           Int?
+}
+
+model Cookbook {
+  id                         Int                       @id @default(autoincrement())
+  created_at                 DateTime                  @default(now())
+  owner_id                   Int
+  owner                      User                      @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  recipe_cookbook_membership RecipeCookbookMembership?
+  name                       String
+  description                String
+}
+
+model RecipeCookbookMembership {
+  id          Int      @id @default(autoincrement())
+  recipes     Recipe[]
+  cookbook_id Int      @unique
+  cookbook    Cookbook @relation(fields: [cookbook_id], references: [id], onDelete: Cascade)
+}
+
+model ShoppingList {
+  id                 Int                 @id @default(autoincrement())
+  created_at         DateTime            @default(now())
+  owner_id           Int
+  owner              User                @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  name               String
+  items              ShoppingListItem[]
+  description        String
+  ShoppingListAccess ShoppingListAccess?
+}
+
+model ShoppingListItem {
+  id               Int          @id @default(autoincrement())
+  name             String
+  ordinal          Int
+  category         String
+  checked          Boolean
+  shopping_list_id Int
+  shopping_list    ShoppingList @relation(fields: [shopping_list_id], references: [id], onDelete: Cascade)
+}
+
+model ShoppingListAccess {
+  id               Int          @id @default(autoincrement())
+  user_id          Int
+  user             User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  shopping_list_id Int          @unique
+  shopping_list    ShoppingList @relation(fields: [shopping_list_id], references: [id], onDelete: Cascade)
+}
+
+model ForgotPasswordToken {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  email      String
+  token      String
+}
+
+model Measure {
+  id               Int               @id @default(autoincrement())
+  abbrs            String[]
+  category         String
+  name_s           String
+  name_p           String
+  prefer_fractions Boolean
+  factor           Float
+  common_ing_v     CommonIngredient? @relation("MeasureVolume")
+  common_ing_w     CommonIngredient? @relation("MeasureWeight")
+
+  @@unique([name_s], name: "Measure_name_s_key")
+}
+
+model CommonIngredient {
+  id        Int      @id @default(autoincrement())
+  names     String[]
+  measure_v Measure  @relation("MeasureVolume", fields: [v_unit], references: [name_s])
+  v_unit    String
+  v_amount  Float
+  measure_w Measure  @relation("MeasureWeight", fields: [w_unit], references: [name_s])
+  w_unit    String
+  w_amount  Float
+
+  @@index([names(ops: ArrayOps)], type: Gin)
+}

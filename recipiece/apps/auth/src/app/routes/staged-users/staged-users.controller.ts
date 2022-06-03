@@ -1,6 +1,14 @@
-import { BadRequestException, Body, ConflictException, Controller, HttpCode, Logger, NotFoundException, Post } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  HttpCode,
+  Logger,
+  NotFoundException,
+  Post
+} from '@nestjs/common';
 import { Utils } from '@recipiece/common';
-import { StagedUserService, UserService } from '@recipiece/database';
+import { StagedUserService, UserLoginService, UserPermissionsService, UserService } from '@recipiece/database';
 import { ISignupEmailData, PubsubService } from '@recipiece/memstore';
 import { randomUUID } from 'crypto';
 import { encryptPassword } from '../../api';
@@ -10,27 +18,14 @@ export class StagedUsersController {
   constructor(
     private stagedUserService: StagedUserService,
     private userService: UserService,
+    private userLoginService: UserLoginService,
+    private userPermissionService: UserPermissionsService,
     private pubsubService: PubsubService
   ) {}
 
   @Post('stage')
-  public async stageUser(@Body() body: { username: string; email: string; password: string }) {
-    const { username, email, password } = body;
-    if (Utils.nou(username)) {
-      throw new BadRequestException('Missing required field "username"');
-    }
-    if (Utils.nou(email)) {
-      throw new BadRequestException('Missing required field "email"');
-    }
-    if (Utils.nou(password)) {
-      throw new BadRequestException('Missing required field "password"');
-    }
-
-    // check that the email doesn't exist already on a user
-    const fromUsername = await this.userService.getByUsername(username);
-    if (!Utils.nou(fromUsername)) {
-      throw new ConflictException();
-    }
+  public async stageUser(@Body() body: { email: string; password: string }) {
+    const { email, password } = body;
 
     const fromEmail = await this.userService.getByEmail(email);
     if (!Utils.nou(fromEmail)) {
@@ -41,14 +36,14 @@ export class StagedUsersController {
     try {
       const stagedUser = await this.stagedUserService.create({
         email: email,
-        username: username,
-        password: pwBundle.password,
+        password_hash: pwBundle.password,
         nonce: pwBundle.nonce,
         salt: pwBundle.salt,
         token: randomUUID(),
+        permission_level: '',
       });
       this.pubsubService.send<ISignupEmailData>('email:signup', { to: email, data: { token: stagedUser.token } });
-      return stagedUser.asResponse();
+      return {};
     } catch (keyErr) {
       Logger.error(keyErr);
       throw new ConflictException();
@@ -59,21 +54,29 @@ export class StagedUsersController {
   @HttpCode(204)
   public async confirmStagedUser(@Body() body: { token: string }) {
     const { token } = body;
-    const stagedUser = await this.stagedUserService.findOne({
-      token: token,
-    });
+    const stagedUser = await this.stagedUserService.getByToken(token);
 
-    if (Utils.nou(stagedUser)) {
-      throw new NotFoundException(`Token ${token} does not match any known record.`);
+    if (!stagedUser) {
+      throw new NotFoundException(`Unknown token ${token}`);
     }
-    await this.userService.create({
-      username: stagedUser.username,
+
+    const user = await this.userService.create({
       email: stagedUser.email,
-      password: stagedUser.password,
-      salt: stagedUser.salt,
-      nonce: stagedUser.nonce,
       preferences: {},
     });
+
+    await this.userLoginService.create(user.id, {
+      password_hash: stagedUser.password_hash,
+      salt: stagedUser.salt,
+      nonce: stagedUser.nonce,
+    });
+
+    await this.userPermissionService.create(user.id, {
+      level: stagedUser.permission_level,
+    });
+
     await this.stagedUserService.delete(stagedUser.id);
+
+    return user;
   }
 }
