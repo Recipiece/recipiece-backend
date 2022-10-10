@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { Recipiece } from '../../model/types';
 import { NestedUpdater } from './nested-updater';
 
 export class ShoppingListItemUpdater extends NestedUpdater<Recipiece.ShoppingListItem> {

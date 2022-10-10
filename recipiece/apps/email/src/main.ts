@@ -1,12 +1,6 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import { INestApplication, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { Environment, EnvironmentSniffer } from '@recipiece/common';
 import {
   IForgotPasswordEmailData,
   ISharedShoppingListEmailData,
@@ -14,6 +8,7 @@ import {
   PubsubService,
 } from '@recipiece/memstore';
 import { EmailService } from './app/services';
+import { EnvironmentConstants } from '@recipiece/common';
 
 function bootstrapPubsub(app: INestApplication) {
   const pubsub = app.get(PubsubService);
@@ -33,11 +28,11 @@ function bootstrapPubsub(app: INestApplication) {
 }
 
 async function bootstrap() {
-  EnvironmentSniffer.load();
   const app = await NestFactory.create(AppModule);
-  await app.listen(Environment.EMAIL_SERVICE_PORT);
+  const port = +process.env[EnvironmentConstants.variables.emailServicePort]
+  await app.listen(port);
   bootstrapPubsub(app);
-  Logger.log(`Email listening on ${Environment.EMAIL_SERVICE_PORT}`);
+  Logger.log(`Email listening on ${port}`);
 }
 
 bootstrap();

@@ -75,11 +75,7 @@ export class CookbooksController {
     }
 
     const cookbookWhere = new CookbookQuery().fromRequest(request);
-    const cookbooks = await this.cookbookService.list(getCursor(request), cookbookWhere);
-
-    return {
-      data: cookbooks,
-    };
+    return await this.cookbookService.list(cookbookWhere, getCursor(request));
   }
 
   @Get(':bookId/recipes')
@@ -103,10 +99,6 @@ export class CookbooksController {
       cursor = undefined;
     }
 
-    const recipes = await this.cookbookService.listRecipes(book.id, cursor, query);
-
-    return {
-      data: recipes,
-    };
+    return await this.cookbookService.listRecipes(book.id, query, cursor);
   }
 }

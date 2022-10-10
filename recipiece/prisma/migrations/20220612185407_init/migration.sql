@@ -110,6 +110,7 @@ CREATE TABLE "Cookbook" (
 -- CreateTable
 CREATE TABLE "RecipeCookbookMembership" (
     "id" SERIAL NOT NULL,
+    "recipe_id" INTEGER NOT NULL,
     "cookbook_id" INTEGER NOT NULL,
 
     CONSTRAINT "RecipeCookbookMembership_pkey" PRIMARY KEY ("id")
@@ -182,12 +183,6 @@ CREATE TABLE "CommonIngredient" (
     CONSTRAINT "CommonIngredient_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "_RecipeToRecipeCookbookMembership" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -210,6 +205,9 @@ CREATE INDEX "RecipeIngredient_name_idx" ON "RecipeIngredient"("name");
 CREATE UNIQUE INDEX "RecipeCookbookMembership_cookbook_id_key" ON "RecipeCookbookMembership"("cookbook_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "RecipeCookbookMembership_recipe_id_cookbook_id_key" ON "RecipeCookbookMembership"("recipe_id", "cookbook_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "ShoppingListAccess_shopping_list_id_key" ON "ShoppingListAccess"("shopping_list_id");
 
 -- CreateIndex
@@ -217,18 +215,6 @@ CREATE UNIQUE INDEX "Measure_name_s_key" ON "Measure"("name_s");
 
 -- CreateIndex
 CREATE INDEX "CommonIngredient_names_idx" ON "CommonIngredient" USING GIN ("names" array_ops);
-
--- CreateIndex
-CREATE UNIQUE INDEX "CommonIngredient_v_unit_key" ON "CommonIngredient"("v_unit");
-
--- CreateIndex
-CREATE UNIQUE INDEX "CommonIngredient_w_unit_key" ON "CommonIngredient"("w_unit");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_RecipeToRecipeCookbookMembership_AB_unique" ON "_RecipeToRecipeCookbookMembership"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_RecipeToRecipeCookbookMembership_B_index" ON "_RecipeToRecipeCookbookMembership"("B");
 
 -- AddForeignKey
 ALTER TABLE "UserLogin" ADD CONSTRAINT "UserLogin_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -255,6 +241,9 @@ ALTER TABLE "RecipeStep" ADD CONSTRAINT "RecipeStep_recipe_section_id_fkey" FORE
 ALTER TABLE "Cookbook" ADD CONSTRAINT "Cookbook_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "RecipeCookbookMembership" ADD CONSTRAINT "RecipeCookbookMembership_recipe_id_fkey" FOREIGN KEY ("recipe_id") REFERENCES "Recipe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "RecipeCookbookMembership" ADD CONSTRAINT "RecipeCookbookMembership_cookbook_id_fkey" FOREIGN KEY ("cookbook_id") REFERENCES "Cookbook"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -274,9 +263,3 @@ ALTER TABLE "CommonIngredient" ADD CONSTRAINT "CommonIngredient_v_unit_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "CommonIngredient" ADD CONSTRAINT "CommonIngredient_w_unit_fkey" FOREIGN KEY ("w_unit") REFERENCES "Measure"("name_s") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_RecipeToRecipeCookbookMembership" ADD CONSTRAINT "_RecipeToRecipeCookbookMembership_A_fkey" FOREIGN KEY ("A") REFERENCES "Recipe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_RecipeToRecipeCookbookMembership" ADD CONSTRAINT "_RecipeToRecipeCookbookMembership_B_fkey" FOREIGN KEY ("B") REFERENCES "RecipeCookbookMembership"("id") ON DELETE CASCADE ON UPDATE CASCADE;

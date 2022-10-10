@@ -1,5 +1,7 @@
-class EnvironmentDefaults {
-  static readonly envName = 'local';
+class EnvironmentValues {
+  public static get isProduction(): boolean {
+    return process.env[EnvironmentVariables.envName] === 'prod';
+  }
 }
 
 class EnvironmentVariables {
@@ -33,12 +35,12 @@ class EnvironmentVariables {
   static readonly memcacheServiceName = 'RCP_SRV_MEMCACHE_NAME';
   static readonly memcacheServicePort = 'RCP_SRV_MEMCACHE_PORT';
   static readonly emailServicePort = 'RCP_SRV_EMAIL_PORT';
-  static readonly emailServiceName = 'RCP_SRC_EMAIL_NAME';
+  static readonly emailServiceName = 'RCP_SRV_EMAIL_NAME';
 
   static readonly internalUserToken = 'RCP_INTERNAL_USER';
 }
 
 export class EnvironmentConstants {
   static readonly variables = EnvironmentVariables;
-  static readonly defaults = EnvironmentDefaults;
+  static readonly values = EnvironmentValues;
 }

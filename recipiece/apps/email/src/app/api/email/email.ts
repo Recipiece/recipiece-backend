@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { Environment } from '@recipiece/common';
+import { EnvironmentConstants } from '@recipiece/common';
 import mailjet from 'node-mailjet';
 
 export abstract class Email {
@@ -8,11 +8,13 @@ export abstract class Email {
   public abstract getContent(): string;
 
   public async send() {
+    const supportAddress = process.env[EnvironmentConstants.variables.supportEmailAddress];
+
     const email = {
       Messages: [
         {
           From: {
-            Email: Environment.SUPPORT_EMAIL,
+            Email: supportAddress,
             Name: 'Recipiece Support',
           },
           To: [
@@ -26,17 +28,19 @@ export abstract class Email {
       ],
     };
 
-    if (Environment.IS_PRODUCTION) {
-      const client = mailjet.connect(Environment.MAILJET_API_KEY, Environment.MAILJET_SECRET_KEY);
+    if (EnvironmentConstants.values.isProduction) {
+      const apiKey = process.env[EnvironmentConstants.variables.mailjetApiKey];
+      const apiSecret = process.env[EnvironmentConstants.variables.mailjetSecret];
+      const client = mailjet.connect(apiKey, apiSecret);
       await client.post('send', { version: 'v3.1' }).request(email);
     } else {
-      Logger.debug('Would have sent the following email')
+      Logger.debug('Would have sent the following email');
       Logger.debug(JSON.stringify(email));
     }
   }
 
   protected generateHost(): string {
-    if (Environment.IS_PRODUCTION) {
+    if (EnvironmentConstants.values.isProduction) {
       return 'https://recipiece.org/';
     } else {
       return 'http://localhost:4200/';

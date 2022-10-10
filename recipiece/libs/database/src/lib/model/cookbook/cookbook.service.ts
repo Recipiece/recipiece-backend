@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Cookbook, Prisma, Recipe } from '@prisma/client';
+import { Cookbook, Prisma } from '@prisma/client';
+import { PagedResponse } from '../../api/paged-response';
 import { DB_PAGE_SIZE } from '../../constants';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Recipiece } from '../types';
 
 @Injectable()
 export class CookbookService {
@@ -16,15 +18,21 @@ export class CookbookService {
   }
 
   public async list(
-    cursor: number,
     where?: Prisma.CookbookWhereInput,
+    cursor?: number,
     orderBy: Prisma.CookbookOrderByWithRelationInput = { name: 'asc' }
-  ): Promise<Cookbook[]> {
+  ): Promise<PagedResponse<Cookbook>> {
     const findCriteria: Prisma.CookbookFindManyArgs = {
-      where: { ...(where || {}) },
       take: DB_PAGE_SIZE,
-      orderBy: { ...(orderBy || {}) },
     };
+
+    if (orderBy) {
+      findCriteria.orderBy = { ...orderBy };
+    }
+
+    if (where) {
+      findCriteria.where = { ...where };
+    }
 
     if (cursor !== null && cursor !== undefined) {
       findCriteria.cursor = {
@@ -33,47 +41,94 @@ export class CookbookService {
       findCriteria.skip = 1;
     }
 
-    return this.prisma.cookbook.findMany(findCriteria);
+    const data = await this.prisma.cookbook.findMany(findCriteria);
+    if (data.length > 0) {
+      return {
+        data: data,
+        next: data[data.length - 1].id,
+      };
+    } else {
+      return {
+        data: [],
+      };
+    }
   }
 
-  public async listRecipes(book: number, cursor: number, recipeQuery?: Prisma.RecipeWhereInput): Promise<Recipe[]> {
-    const recipesFindMany: Prisma.RecipeFindManyArgs = {
+  public async attachRecipes(book: number, recipes: number[]) {
+    const attachments: Prisma.RecipeCookbookMembershipCreateManyInput[] = recipes.map((r) => {
+      return {
+        recipe_id: r,
+        cookbook_id: book,
+      };
+    });
+    await this.prisma.recipeCookbookMembership.createMany({
+      data: attachments,
+    });
+  }
+
+  public async detachRecipes(book: number, recipes: number[]) {
+    const detachments: Prisma.RecipeCookbookMembershipWhereInput = {
+      AND: {
+        cookbook_id: book,
+        recipe_id: {
+          in: recipes,
+        },
+      },
+    };
+    await this.prisma.recipeCookbookMembership.deleteMany({
+      where: detachments,
+    });
+  }
+
+  public async listRecipes(
+    book: number,
+    recipeQuery?: Prisma.RecipeWhereInput,
+    cursor?: number
+  ): Promise<PagedResponse<Recipiece.Recipe>> {
+    const membershipsJoin: Prisma.RecipeCookbookMembershipFindManyArgs = {
       take: DB_PAGE_SIZE,
       where: {
-        ...(recipeQuery || {}),
-      },
-      orderBy: {
-        name: 'asc',
+        cookbook_id: book,
+        recipe: {
+          ...(recipeQuery || {}),
+        },
       },
       include: {
-        sections: {
+        recipe: {
           include: {
-            ingredients: true,
-            steps: true,
+            sections: {
+              include: {
+                ingredients: true,
+                steps: true,
+              },
+            },
           },
         },
       },
     };
+
     if (cursor !== null && cursor !== undefined) {
-      recipesFindMany.cursor = {
+      membershipsJoin.cursor = {
         id: cursor,
       };
-      recipesFindMany.skip = 1;
+      membershipsJoin.skip = 1;
     }
 
-    const query: Prisma.RecipeCookbookMembershipFindFirstArgs = {
-      take: DB_PAGE_SIZE,
-      where: {
-        cookbook_id: book,
-      },
-      include: {
-        recipes: { ...recipesFindMany },
-      },
-    };
+    const memberships = await this.prisma.recipeCookbookMembership.findMany(membershipsJoin);
 
-    const results = await this.prisma.recipeCookbookMembership.findFirst(query);
-
-    return (results as unknown as { recipes: Recipe[] }).recipes;
+    if (memberships.length > 0) {
+      const recipes = memberships.map((m) => {
+        return (m as unknown as { recipe: Recipiece.Recipe }).recipe;
+      });
+      return {
+        data: recipes,
+        next: memberships[memberships.length - 1].id,
+      };
+    } else {
+      return {
+        data: [],
+      };
+    }
   }
 
   public async create(owner: number, model: Partial<Cookbook>): Promise<Cookbook> {

@@ -11,6 +11,9 @@ import { UserLoginService } from './model/user-login/user-login.service';
 import { UserPermissionsService } from './model/user-permissions/user-permissions.service';
 import { UserService } from './model/user/user.service';
 import { PrismaService } from './prisma/prisma.service';
+import { RecipeSectionService } from './model/recipe-section/recipe-section.service';
+import { RecipeStepService } from './model/recipe-step/recipe-step.service';
+import { RecipeIngredientService } from './model/recipe-ingredient/recipe-ingredient.service';
 
 @Module({
   controllers: [],
@@ -27,6 +30,9 @@ import { PrismaService } from './prisma/prisma.service';
     ForgotPasswordService,
     MeasureService,
     CommonIngredientService,
+    RecipeSectionService,
+    RecipeStepService,
+    RecipeIngredientService,
   ],
   exports: [
     UserService,
@@ -41,6 +47,9 @@ import { PrismaService } from './prisma/prisma.service';
     MeasureService,
     CommonIngredientService,
     PrismaService,
+    RecipeSectionService,
+    RecipeStepService,
+    RecipeIngredientService,
   ],
 })
 export class DatabaseModule {}

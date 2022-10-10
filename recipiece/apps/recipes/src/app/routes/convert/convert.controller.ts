@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
-import { RecipeIngredient } from '@prisma/client';
 import { Utils } from '@recipiece/common';
+import { RecipeIngredient } from '@recipiece/database';
 import { AuthenticationGuard } from '@recipiece/middleware';
 import Fraction from 'fraction.js';
 import { ConverterApiService, UnknownUnitException } from '../../api';
@@ -33,7 +33,7 @@ export class ConvertController {
     }
 
     let convertedAmount: number;
-    if (sourceMeasure.cat !== destMeasure.cat) {
+    if (sourceMeasure.category !== destMeasure.category) {
       convertedAmount = await this.converterApi.convertDifferentUnitCategories(ingredient, sourceMeasure, destMeasure);
     } else {
       convertedAmount = this.converterApi.convertSameUnitCategories(ingredient.amount, sourceMeasure, destMeasure);
@@ -41,14 +41,14 @@ export class ConvertController {
 
     // try and nicely convert the value back to a fraction, if it ~should~ be one
     let amount = convertedAmount.toString(10);
-    if (destMeasure.preferFractions) {
+    if (destMeasure.prefer_fractions) {
       amount = new Fraction(Math.round(16 * convertedAmount), 16).toFraction();
     }
 
     return {
       ingredient: {
         ...ingredient,
-        unit: convertedAmount === 1 ? destMeasure.name.s : destMeasure.name.p,
+        unit: convertedAmount === 1 ? destMeasure.name_s : destMeasure.name_p,
         amount: amount,
       },
       from: sourceMeasure,

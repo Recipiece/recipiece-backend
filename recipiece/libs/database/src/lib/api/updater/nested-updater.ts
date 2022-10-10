@@ -1,13 +1,15 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
-export abstract class NestedUpdater<T extends {id?: number}> {
-  constructor(private prisma: PrismaClient) {
-
-  }
+export abstract class NestedUpdater<T extends { id?: number }> {
+  constructor(private prisma: PrismaClient) {}
 
   protected abstract mapCreateData(entity: T): Partial<T>;
 
   protected abstract mapUpdateData(entity: T): Partial<T>;
+
+  protected refineDelete(): any {
+    return {};
+  }
 
   public async update(entities: T[], prismaType: string): Promise<T[]> {
     const knownEntities = entities.filter((i) => !!i.id);
@@ -23,6 +25,7 @@ export abstract class NestedUpdater<T extends {id?: number}> {
           id: {
             notIn: knownIds,
           },
+          ...this.refineDelete(),
         },
       });
 

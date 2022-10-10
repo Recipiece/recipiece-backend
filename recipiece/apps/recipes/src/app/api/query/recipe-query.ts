@@ -41,7 +41,7 @@ export class RecipeQuery {
   }
 
   public setTagsReq(request: Request) {
-    const tags = request.query?.tags || [];
+    const tags = request.query?.tags;
     if (!Utils.nou(tags)) {
       this.setTags(tags as string[]);
     }

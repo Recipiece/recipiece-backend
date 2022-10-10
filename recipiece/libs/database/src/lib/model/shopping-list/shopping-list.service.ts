@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { ShoppingListItemUpdater } from '../../api';
+import { PagedResponse, ShoppingListItemUpdater } from '../../api';
 import { DB_PAGE_SIZE } from '../../constants';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Recipiece } from '../types';
 
 @Injectable()
 export class ShoppingListService {
@@ -56,7 +57,7 @@ export class ShoppingListService {
     cursor: number,
     where?: Prisma.ShoppingListWhereInput,
     orderBy: Prisma.ShoppingListOrderByWithRelationInput = { name: 'asc' }
-  ): Promise<Recipiece.ShoppingList[]> {
+  ): Promise<PagedResponse<Recipiece.ShoppingList>> {
     const findCriteria: Prisma.ShoppingListFindManyArgs = {
       take: DB_PAGE_SIZE,
       where: { ...where },
@@ -73,6 +74,17 @@ export class ShoppingListService {
       findCriteria.skip = 1;
     }
 
-    return this.prisma.shoppingList.findMany(findCriteria) as unknown as Recipiece.ShoppingList[];
+    const lists = await this.prisma.shoppingList.findMany(findCriteria);
+
+    if (lists.length > 0) {
+      return {
+        data: lists as unknown as Recipiece.ShoppingList[],
+        next: lists[lists.length - 1].id,
+      };
+    } else {
+      return {
+        data: [],
+      };
+    }
   }
 }

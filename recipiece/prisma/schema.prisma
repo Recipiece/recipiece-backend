@@ -64,7 +64,7 @@ model Recipe {
   id                          Int                        @id @default(autoincrement())
   created_at                  DateTime                   @default(now())
   owner_id                    Int
-  owner                       User                       @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  owner                       User?                      @relation(fields: [owner_id], references: [id], onDelete: Cascade)
   name                        String
   description                 String
   sections                    RecipeSection[]
@@ -77,6 +77,7 @@ model Recipe {
 model RecipeSection {
   id          Int                @id @default(autoincrement())
   name        String
+  ordinal     Int
   ingredients RecipeIngredient[]
   steps       RecipeStep[]
   recipe_id   Int
@@ -87,9 +88,11 @@ model RecipeIngredient {
   id                Int            @id @default(autoincrement())
   recipe_section    RecipeSection? @relation(fields: [recipe_section_id], references: [id], onDelete: Cascade)
   recipe_section_id Int
+  content           String
   amount            String
   unit              String?
   name              String
+  ordinal           Int
 
   @@index([name])
 }
@@ -99,24 +102,28 @@ model RecipeStep {
   recipe_section    RecipeSection? @relation(fields: [recipe_section_id], references: [id], onDelete: Cascade)
   recipe_section_id Int
   content           String
+  ordinal           Int
   time_ms           Int?
 }
 
 model Cookbook {
-  id                         Int                       @id @default(autoincrement())
-  created_at                 DateTime                  @default(now())
+  id                         Int                        @id @default(autoincrement())
+  created_at                 DateTime                   @default(now())
   owner_id                   Int
-  owner                      User                      @relation(fields: [owner_id], references: [id], onDelete: Cascade)
-  recipe_cookbook_membership RecipeCookbookMembership?
+  owner                      User                       @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  recipe_cookbook_membership RecipeCookbookMembership[]
   name                       String
   description                String
 }
 
 model RecipeCookbookMembership {
   id          Int      @id @default(autoincrement())
-  recipes     Recipe[]
-  cookbook_id Int      @unique
+  recipe_id   Int
+  recipe      Recipe   @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+  cookbook_id Int
   cookbook    Cookbook @relation(fields: [cookbook_id], references: [id], onDelete: Cascade)
+
+  @@unique([recipe_id, cookbook_id])
 }
 
 model ShoppingList {
@@ -156,15 +163,15 @@ model ForgotPasswordToken {
 }
 
 model Measure {
-  id               Int               @id @default(autoincrement())
+  id               Int                @id @default(autoincrement())
   abbrs            String[]
   category         String
   name_s           String
   name_p           String
   prefer_fractions Boolean
   factor           Float
-  common_ing_v     CommonIngredient? @relation("MeasureVolume")
-  common_ing_w     CommonIngredient? @relation("MeasureWeight")
+  common_ing_v     CommonIngredient[] @relation("MeasureVolume")
+  common_ing_w     CommonIngredient[] @relation("MeasureWeight")
 
   @@unique([name_s], name: "Measure_name_s_key")
 }

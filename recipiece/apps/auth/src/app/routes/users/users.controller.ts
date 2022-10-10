@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Delete, ForbiddenException, HttpCode, NotImplementedException,
+  Delete, ForbiddenException, Get, HttpCode, NotImplementedException,
   Post,
   Req, UseGuards
 } from '@nestjs/common';
@@ -17,6 +17,11 @@ export class UsersController {
     private userLoginService: UserLoginService,
     private sessionService: SessionService
   ) {}
+
+  @Get('test')
+  public async getTest() {
+    return 'hello world';
+  }
 
   @Post('login')
   @HttpCode(200)
